@@ -8,5 +8,17 @@
         Title="PenteXP" Height="350" Width="525">
     <Grid>
 	   <Label>Hello, World!</Label>
+	   <Grid>
+		  <Grid.ColumnDefinitions>
+			 <ColumnDefinition />
+			 <ColumnDefinition />
+			 <ColumnDefinition />
+		  </Grid.ColumnDefinitions>
+		  <Grid.RowDefinitions>
+			 <RowDefinition />
+			 <RowDefinition />
+			 <RowDefinition />
+		  </Grid.RowDefinitions>
+	   </Grid>
     </Grid>
 </Window>
