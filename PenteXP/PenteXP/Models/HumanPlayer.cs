@@ -6,8 +6,15 @@ using System.Threading.Tasks;
 
 namespace PenteXP.Models
 {
-    public class HumanPlayer
+    public class HumanPlayer : Player
     {
+        protected HumanPlayer()
+        {
+        }
 
+        public override Turn TakeTurn()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

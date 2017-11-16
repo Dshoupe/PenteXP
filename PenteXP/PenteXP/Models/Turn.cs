@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace PenteXP.Models
 {
-    public class Piece
+    public class Turn
     {
-        public Colors PieceColor { get; set; }
+        public int GameBoardXCoord { get; set; }
+        public int GameBoardYCoord { get; set; }
     }
 }

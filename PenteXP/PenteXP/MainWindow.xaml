@@ -19,6 +19,34 @@
 			 <RowDefinition />
 			 <RowDefinition />
 		  </Grid.RowDefinitions>
+		  <Grid Grid.Row="1" Grid.Column="1">
+			 <Grid Background="AliceBlue">
+				<Grid.ColumnDefinitions>
+				    <ColumnDefinition />
+				    <ColumnDefinition />
+				    <ColumnDefinition />
+				    <ColumnDefinition />
+				    <ColumnDefinition />
+				    <ColumnDefinition />
+				    <ColumnDefinition />
+				    <ColumnDefinition />
+				    <ColumnDefinition />
+				    <ColumnDefinition />
+				</Grid.ColumnDefinitions>
+				<Grid.RowDefinitions>
+				    <RowDefinition />
+				    <RowDefinition />
+				    <RowDefinition />
+				    <RowDefinition />
+				    <RowDefinition />
+				    <RowDefinition />
+				    <RowDefinition />
+				    <RowDefinition />
+				    <RowDefinition />
+				    <RowDefinition />
+				</Grid.RowDefinitions>
+			 </Grid>
+		  </Grid>
 	   </Grid>
     </Grid>
 </Window>

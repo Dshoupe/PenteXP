@@ -6,8 +6,17 @@ using System.Threading.Tasks;
 
 namespace PenteXP.Models
 {
-    public class Player
+    public abstract class Player
     {
+        public string Name { get; set; }
+        public Colors PlayerColor { get; set; }
+        public int Captures { get; set; }
 
+        public abstract Turn TakeTurn();
+
+        public override string ToString()
+        {
+            return $"{Name} - {PlayerColor}";
+        }
     }
 }
