@@ -5,48 +5,52 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PenteXP"
         mc:Ignorable="d"
-        Title="PenteXP" Height="350" Width="525">
-    <Grid>
-	   <Label>Hello, World!</Label>
+        Title="Future Pente" Height="560" Width="900">
+    <Window.CommandBindings>
+	   <CommandBinding Command="Open"
+				    Executed="Refresh_Executed"/>
+	   <CommandBinding Command="Save"
+				    Executed="Instructions_Executed"/>
+    </Window.CommandBindings>
+    <Window.InputBindings>
+	   <KeyBinding Key="R"
+                    Modifiers="Ctrl"
+                    Command="Open" />
+	   <KeyBinding Key="I"
+                    Modifiers="Ctrl"
+                    Command="Save" />
+    </Window.InputBindings>
+    <StackPanel>
+	   <StackPanel x:Name="fileMenu" Grid.ColumnSpan="2">
+		  <Menu>
+			 <MenuItem Header="Ga_me">
+				<MenuItem Header="Reset Board"
+                          Command="Open" 
+					 InputGestureText="Ctrl+R"/>
+				<MenuItem Header="Instructions"
+                          Command="Save" 
+					 InputGestureText="Ctrl+I"/>
+			 </MenuItem>
+		  </Menu>
+	   </StackPanel>
 	   <Grid>
 		  <Grid.ColumnDefinitions>
-			 <ColumnDefinition />
-			 <ColumnDefinition />
-			 <ColumnDefinition />
+			 <ColumnDefinition Width="8*"/>
+			 <ColumnDefinition Width="2*"/>
 		  </Grid.ColumnDefinitions>
-		  <Grid.RowDefinitions>
-			 <RowDefinition />
-			 <RowDefinition />
-			 <RowDefinition />
-		  </Grid.RowDefinitions>
-		  <Grid Grid.Row="1" Grid.Column="1">
-			 <Grid Background="AliceBlue">
-				<Grid.ColumnDefinitions>
-				    <ColumnDefinition />
-				    <ColumnDefinition />
-				    <ColumnDefinition />
-				    <ColumnDefinition />
-				    <ColumnDefinition />
-				    <ColumnDefinition />
-				    <ColumnDefinition />
-				    <ColumnDefinition />
-				    <ColumnDefinition />
-				    <ColumnDefinition />
-				</Grid.ColumnDefinitions>
-				<Grid.RowDefinitions>
-				    <RowDefinition />
-				    <RowDefinition />
-				    <RowDefinition />
-				    <RowDefinition />
-				    <RowDefinition />
-				    <RowDefinition />
-				    <RowDefinition />
-				    <RowDefinition />
-				    <RowDefinition />
-				    <RowDefinition />
-				</Grid.RowDefinitions>
-			 </Grid>
-		  </Grid>
+		  <UniformGrid x:Name="GameBoard" Grid.Column="0" Height="500" Width="500" Rows="19" Columns="19" Margin="0 0 100 0"/>
+		  <Label x:Name="BoardCover" Margin="50 0 150 0" Background="Gray" Opacity=".9"/>
+		  <StackPanel x:Name="PlayerDetails" Grid.Column="1">
+			 <Label Content="Player 1's Name" />
+			 <TextBox x:Name="Player1Name" Background="AliceBlue"/>
+			 <Label Content="Player 2's Name"/>
+			 <TextBox x:Name="Player2Name" Background="AliceBlue"/>
+			 <Button Content="Submit" Margin="0 5 0 0" Click="Button_Click"/>
+		  </StackPanel>
+		  <StackPanel x:Name="PlayerTurnOrder" Grid.Column="1">
+			 <Label x:Name="Player1Info"/>
+			 <Label x:Name="Player2Info"/>
+		  </StackPanel>
 	   </Grid>
-    </Grid>
+    </StackPanel>
 </Window>

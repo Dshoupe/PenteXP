@@ -8,7 +8,26 @@ namespace PenteXP.Models
 {
     public abstract class Player
     {
-        public string Name { get; set; }
+        public static int id = 1;
+        private string name;
+
+        public string Name
+        {
+            get { return name; }
+            set
+            {
+                if (string.IsNullOrEmpty(value) || string.IsNullOrWhiteSpace(value))
+                {
+                    name = $"Player {id++}";
+                }
+                else
+                {
+                    name = value;
+                    id++;
+                }
+            }
+        }
+
         public Colors PlayerColor { get; set; }
         public int Captures { get; set; }
 
@@ -16,7 +35,7 @@ namespace PenteXP.Models
 
         public override string ToString()
         {
-            return $"{Name} - {PlayerColor}";
+            return $"{Name} - {PlayerColor}\nCaptures: {Captures}";
         }
     }
 }

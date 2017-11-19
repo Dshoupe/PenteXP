@@ -10,5 +10,10 @@ namespace PenteXP.Models
     {
         public int GameBoardXCoord { get; set; }
         public int GameBoardYCoord { get; set; }
+        public Turn(int xCoord, int yCoord)
+        {
+            GameBoardXCoord = xCoord;
+            GameBoardYCoord = yCoord;
+        }
     }
 }
