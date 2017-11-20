@@ -1,19 +1,12 @@
 ﻿using PenteXP.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Resources;
-using System.Windows.Shapes;
+using swf = System.Windows.Forms;
 
 namespace PenteXP
 {
@@ -24,10 +17,29 @@ namespace PenteXP
     {
         private int turnOrder = 1;
         private Player[] players = new Player[2];
+        private swf.Timer timer = new swf.Timer();
+        private const int turnTimer = 20;
+        private int ticks = turnTimer;
         public MainWindow()
         {
             InitializeComponent();
             InitializeBoard();
+            timer.Interval = 1000;
+            timer.Start();
+            timer.Tick += TickTest;
+        }
+
+        private void TickTest(object sender, EventArgs e)
+        {
+            ticks--;
+            if (ticks == 0)
+            {
+                timer.Stop();
+                ticks = turnTimer;
+                MessageBox.Show("You're turn has been skipped", "Turn Skipped!", MessageBoxButton.OK);
+                timer.Start();
+            }
+            test.Content = ticks;
         }
 
         public void InitializeBoard()
@@ -44,9 +56,11 @@ namespace PenteXP
                     Uri resourceUri = new Uri("Images/StartingTile.png", UriKind.Relative);
                     StreamResourceInfo streamInfo = Application.GetResourceStream(resourceUri);
                     BitmapFrame temp = BitmapFrame.Create(streamInfo.Stream);
-                    var brush = new ImageBrush();
-                    brush.ImageSource = temp;
-                    brush.Stretch = Stretch.Uniform;
+                    var brush = new ImageBrush
+                    {
+                        ImageSource = temp,
+                        Stretch = Stretch.Uniform
+                    };
                     spot.Background = brush;
                 }
                 else
@@ -55,9 +69,11 @@ namespace PenteXP
                     Uri resourceUri = new Uri("Images/BlankBoard.png", UriKind.Relative);
                     StreamResourceInfo streamInfo = Application.GetResourceStream(resourceUri);
                     BitmapFrame temp = BitmapFrame.Create(streamInfo.Stream);
-                    var brush = new ImageBrush();
-                    brush.ImageSource = temp;
-                    brush.Stretch = Stretch.Uniform;
+                    var brush = new ImageBrush
+                    {
+                        ImageSource = temp,
+                        Stretch = Stretch.Uniform
+                    };
                     spot.Background = brush;
                 }
                 GameBoard.Children.Add(spot);
@@ -79,9 +95,10 @@ namespace PenteXP
                         Uri resourceUri = new Uri("Images/BlackPiece.png", UriKind.Relative);
                         StreamResourceInfo streamInfo = Application.GetResourceStream(resourceUri);
                         BitmapFrame temp = BitmapFrame.Create(streamInfo.Stream);
-                        var brush = new ImageBrush();
-                        brush.ImageSource = temp;
-                        brush.Stretch = Stretch.Fill;
+                        var brush = new ImageBrush
+                        {
+                            ImageSource = temp
+                        };
                         spot.Background = brush;
                         sender = spot;
                         turnOrder++;
@@ -100,9 +117,11 @@ namespace PenteXP
                         Uri resourceUri = new Uri("Images/WhitePiece.png", UriKind.Relative);
                         StreamResourceInfo streamInfo = Application.GetResourceStream(resourceUri);
                         BitmapFrame temp = BitmapFrame.Create(streamInfo.Stream);
-                        var brush = new ImageBrush();
-                        brush.ImageSource = temp;
-                        brush.Stretch = Stretch.Fill;
+                        var brush = new ImageBrush
+                        {
+                            ImageSource = temp,
+                            Stretch = Stretch.Fill
+                        };
                         label.Background = brush;
                         sender = label;
                     }
@@ -113,9 +132,11 @@ namespace PenteXP
                         Uri resourceUri = new Uri("Images/BlackPiece.png", UriKind.Relative);
                         StreamResourceInfo streamInfo = Application.GetResourceStream(resourceUri);
                         BitmapFrame temp = BitmapFrame.Create(streamInfo.Stream);
-                        var brush = new ImageBrush();
-                        brush.ImageSource = temp;
-                        brush.Stretch = Stretch.Fill;
+                        var brush = new ImageBrush
+                        {
+                            ImageSource = temp,
+                            Stretch = Stretch.Fill
+                        };
                         label.Background = brush;
                         sender = label;
                     }

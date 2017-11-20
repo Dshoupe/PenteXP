@@ -28,10 +28,35 @@ namespace PenteXP.Models
             }
         }
 
-        public Colors PlayerColor { get; set; }
-        public int Captures { get; set; }
+        private Colors playerColor;
 
-        public abstract Turn TakeTurn();
+        public Colors PlayerColor
+        {
+            get { return playerColor; }
+            set
+            {
+                if (id == 1)
+                {
+                    playerColor = Colors.Black;
+                }
+                else
+                {
+                    playerColor = Colors.White;
+                }
+            }
+        }
+
+        private int captures;
+
+        public int Captures
+        {
+            get { return captures; }
+            set
+            {
+                captures += value;
+            }
+        }
+
 
         public override string ToString()
         {

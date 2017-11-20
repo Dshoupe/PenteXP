@@ -8,13 +8,8 @@ namespace PenteXP.Models
 {
     public class AIPlayer : Player
     {
-        protected AIPlayer()
+        public AIPlayer()
         {
-        }
-
-        public override Turn TakeTurn()
-        {
-            throw new NotImplementedException();
         }
     }
 }
