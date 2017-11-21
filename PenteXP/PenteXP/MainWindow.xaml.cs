@@ -1,5 +1,8 @@
-﻿using PenteXP.Models;
+﻿using Microsoft.Win32;
+using PenteXP.Models;
 using System;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -23,7 +26,6 @@ namespace PenteXP
         public MainWindow()
         {
             InitializeComponent();
-            InitializeBoard();
             timer.Interval = 1000;
             timer.Start();
             timer.Tick += TickTest;
@@ -37,6 +39,7 @@ namespace PenteXP
                 timer.Stop();
                 ticks = turnTimer;
                 MessageBox.Show("You're turn has been skipped", "Turn Skipped!", MessageBoxButton.OK);
+                turnOrder++;
                 timer.Start();
             }
             test.Content = ticks;
@@ -44,13 +47,14 @@ namespace PenteXP
 
         public void InitializeBoard()
         {
-            PlayerTurnOrder.Visibility = Visibility.Hidden;
-            BoardCover.Visibility = Visibility.Visible;
-            for (int i = 0; i < 361; i++)
+            GameBoard.Children.Clear();
+            int boardSize = (int)BoardSizeSlider.Value * (int)BoardSizeSlider.Value;
+            PlayerTurnOrder.Visibility = Visibility.Visible;
+            for (int i = 0; i < boardSize; i++)
             {
                 Label spot = new Label();
                 spot.MouseLeftButtonDown += Label_MouseLeftButtonDown;
-                if (i == 180)
+                if (i == boardSize / 2)
                 {
                     spot.Name = "StartingTile";
                     Uri resourceUri = new Uri("Images/StartingTile.png", UriKind.Relative);
@@ -91,7 +95,7 @@ namespace PenteXP
                     if (label.Name == "StartingTile")
                     {
                         Label spot = (Label)sender;
-                        spot.Name = "Piece";
+                        spot.Name = "BlackPiece";
                         Uri resourceUri = new Uri("Images/BlackPiece.png", UriKind.Relative);
                         StreamResourceInfo streamInfo = Application.GetResourceStream(resourceUri);
                         BitmapFrame temp = BitmapFrame.Create(streamInfo.Stream);
@@ -113,7 +117,7 @@ namespace PenteXP
                     if (turnOrder % 2 == 0)
                     {
                         Label label = (Label)sender;
-                        label.Name = "Piece";
+                        label.Name = "WhitePiece";
                         Uri resourceUri = new Uri("Images/WhitePiece.png", UriKind.Relative);
                         StreamResourceInfo streamInfo = Application.GetResourceStream(resourceUri);
                         BitmapFrame temp = BitmapFrame.Create(streamInfo.Stream);
@@ -128,7 +132,7 @@ namespace PenteXP
                     else
                     {
                         Label label = (Label)sender;
-                        label.Name = "Piece";
+                        label.Name = "BlackPiece";
                         Uri resourceUri = new Uri("Images/BlackPiece.png", UriKind.Relative);
                         StreamResourceInfo streamInfo = Application.GetResourceStream(resourceUri);
                         BitmapFrame temp = BitmapFrame.Create(streamInfo.Stream);
@@ -151,11 +155,17 @@ namespace PenteXP
             {
 
             }
+            ticks = turnTimer;
         }
 
         private bool WinCheck(object sender, MouseButtonEventArgs e)
         {
             Label label = (Label)sender;
+            int blackCounter = 0;
+            int whiteCounter = 0;
+
+
+
             return false;
         }
 
@@ -163,9 +173,10 @@ namespace PenteXP
         {
             turnOrder = 1;
             GameBoard.Children.Clear();
-            InitializeBoard();
             Player.id = 1;
+            PlayerTurnOrder.Visibility = Visibility.Hidden;
             PlayerDetails.Visibility = Visibility.Visible;
+            BoardCover.Visibility = Visibility.Visible;
             players = new Player[2];
         }
 
@@ -178,6 +189,7 @@ namespace PenteXP
             PlayerTurnOrder.Visibility = Visibility.Visible;
             Player1Info.Content = players[0].ToString();
             Player2Info.Content = players[1].ToString();
+            InitializeBoard();
         }
 
         private void Instructions_Executed(object sender, ExecutedRoutedEventArgs e)
@@ -185,28 +197,52 @@ namespace PenteXP
             MessageBox.Show("\t\tPente\nPlace pieces 5 in a row or get 5 captures to win");
         }
 
-        ////https://stackoverflow.com/questions/40979793/how-to-invert-an-image
-        ////Courtesy of Patrick from StackOverflow
-        //public static BitmapSource Invert(BitmapSource source)
-        //{
-        //    int stride = (source.PixelWidth * source.Format.BitsPerPixel + 7) / 8;
+        private void SaveGame_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            gameModel model = new gameModel();
+            foreach (Label name in GameBoard.Children)
+            {
+                model.boardpieces.Add(name.Name);
+            }
+            foreach (Player player in players)
+            {
+                model.players.Add(player);
+            }
 
-        //    int length = stride * source.PixelHeight;
-        //    byte[] data = new byte[length];
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.DefaultExt = ".pente";
+            sfd.FileName = "pente.pente";
+            sfd.Filter = "Pente Saves (*.pente)|*.pente";
+            if (sfd.ShowDialog() == true)
+            {
+                using (FileStream stream = new FileStream(sfd.FileName, FileMode.OpenOrCreate))
+                {
+                    BinaryFormatter bf = new BinaryFormatter();
+                    bf.Serialize(stream, model);
+                }
+            }
+        }
 
-        //    source.CopyPixels(data, stride, 0);
+        private void LoadGame_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.DefaultExt = ".pente";
+            ofd.Filter = "Pente Saves (*.pente)|*.pente";
+            gameModel newGame = null;
+            if (ofd.ShowDialog() == true)
+            {
+                using (FileStream stream = new FileStream(ofd.FileName, FileMode.Open))
+                {
+                    BinaryFormatter bf = new BinaryFormatter();
+                    newGame = (gameModel)bf.Deserialize(stream);
+                }
+                
+            }
+        }
 
-        //    for (int i = 0; i < length; i += 4)
-        //    {
-        //        data[i] = (byte)(255 - data[i]);
-        //        data[i + 1] = (byte)(255 - data[i + 1]);
-        //        data[i + 2] = (byte)(255 - data[i + 2]);
-        //    }
+        private void LoadGame(gameModel game)
+        {
 
-        //    return BitmapSource.Create(
-        //        source.PixelWidth, source.PixelHeight,
-        //        source.DpiX, source.DpiY, source.Format,
-        //        null, data, stride);
-        //}
+        }
     }
 }

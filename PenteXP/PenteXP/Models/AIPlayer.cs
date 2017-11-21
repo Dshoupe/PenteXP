@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace PenteXP.Models
 {
+    [Serializable]
     public class AIPlayer : Player
     {
         public AIPlayer()

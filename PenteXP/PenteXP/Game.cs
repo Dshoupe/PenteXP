@@ -13,9 +13,9 @@ namespace PenteXP
 
         }
 
-        public void CheckWin()
+        public bool CheckWin()
         {
-
+            return false;
         }
 
         public void PlayGame()

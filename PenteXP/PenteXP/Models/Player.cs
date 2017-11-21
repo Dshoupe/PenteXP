@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace PenteXP.Models
 {
+    [Serializable]
     public abstract class Player
     {
         public static int id = 1;

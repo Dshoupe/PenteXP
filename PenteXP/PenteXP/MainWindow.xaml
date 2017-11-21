@@ -7,29 +7,37 @@
         mc:Ignorable="d"
         Title="Future Pente" Height="560" Width="900">
     <Window.CommandBindings>
-	   <CommandBinding Command="Open"
+	   <CommandBinding Command="Close"
 				    Executed="Refresh_Executed"/>
 	   <CommandBinding Command="Save"
-				    Executed="Instructions_Executed"/>
+				    Executed="SaveGame_Executed"/>
+	   <CommandBinding Command="Open"
+				    Executed="LoadGame_Executed"/>
     </Window.CommandBindings>
     <Window.InputBindings>
 	   <KeyBinding Key="R"
                     Modifiers="Ctrl"
-                    Command="Open" />
-	   <KeyBinding Key="I"
+                    Command="Close" />
+	   <KeyBinding Key="S"
                     Modifiers="Ctrl"
                     Command="Save" />
+	   <KeyBinding Key="O"
+                    Modifiers="Ctrl"
+                    Command="Open" />
     </Window.InputBindings>
     <StackPanel>
 	   <StackPanel x:Name="fileMenu" Grid.ColumnSpan="2">
 		  <Menu>
 			 <MenuItem Header="Ga_me">
 				<MenuItem Header="Reset Board"
-                          Command="Open" 
+                          Command="Close" 
 					 InputGestureText="Ctrl+R"/>
-				<MenuItem Header="Instructions"
+				<MenuItem Header="Save Game"
                           Command="Save" 
-					 InputGestureText="Ctrl+I"/>
+					 InputGestureText="Ctrl+S"/>
+				<MenuItem Header="Load Game"
+                          Command="Open" 
+					 InputGestureText="Ctrl+O"/>
 			 </MenuItem>
 		  </Menu>
 	   </StackPanel>
@@ -38,21 +46,25 @@
 			 <ColumnDefinition Width="8*"/>
 			 <ColumnDefinition Width="2*"/>
 		  </Grid.ColumnDefinitions>
-		  <UniformGrid x:Name="GameBoard" Grid.Column="0" Height="500" Width="500" Rows="19" Columns="19" Margin="0 0 100 0"/>
-		  <TextBlock x:Name="BoardCover" FontSize="30" TextAlignment="Center" TextWrapping="Wrap" Text="Choose Player names first to begin the game" Margin="50 0 150 0" Background="Gray" Opacity=".9"/>
-		  <StackPanel x:Name="PlayerDetails" Grid.Column="1">
+		  <UniformGrid x:Name="GameBoard" Grid.Column="0" Height="500" Width="500" Margin="0 0 100 0"/>
+		  <TextBlock x:Name="BoardCover" FontSize="30" TextAlignment="Center" TextWrapping="Wrap" Text="Choose Player names and Board Size first to begin the game" Margin="50 0 150 0" Background="Gray" Opacity=".9"/>
+		  <StackPanel x:Name="PlayerDetails" Grid.Column="1" Margin="-5 0 10 0">
 			 <Label Content="Player 1's Name" />
 			 <TextBox x:Name="Player1Name" Background="AliceBlue"/>
 			 <Label Content="Player 2's Name"/>
 			 <TextBox x:Name="Player2Name" Background="AliceBlue"/>
-			 <Button Content="Submit" Margin="0 5 0 0" Click="Button_Click"/>
-			 <Label x:Name="test" Content="Test" Margin="0,100,-0.333,0"/>
+			 <StackPanel  Margin="10">
+				<Label Content="Board Size"/>
+				<Slider x:Name="BoardSizeSlider" Maximum="39" Minimum="9" TickPlacement="BottomRight" TickFrequency="2" IsSnapToTickEnabled="True"/>
+				<Label Content="{Binding ElementName=BoardSizeSlider, Path=Value}"/>
+			 </StackPanel>
+			 <Button Content="Start Game" Margin="0 5 0 0" Click="Button_Click"/>
 		  </StackPanel>
 		  <StackPanel x:Name="PlayerTurnOrder" Grid.Column="1">
 			 <Label x:Name="Player1Info"/>
 			 <Label x:Name="Player2Info"/>
-			 
 		  </StackPanel>
+		  <Label x:Name="test" Content="Tick" Margin="10,463,671,10"/>
 	   </Grid>
     </StackPanel>
 </Window>

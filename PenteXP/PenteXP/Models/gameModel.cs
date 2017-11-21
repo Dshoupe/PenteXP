@@ -7,11 +7,9 @@ using System.Threading.Tasks;
 namespace PenteXP.Models
 {
     [Serializable]
-    public class HumanPlayer : Player
+    public class gameModel
     {
-        public HumanPlayer(string name)
-        {
-            Name = name;
-        }
+        public List<String> boardpieces = new List<String>();
+        public List<Player> players = new List<Player>();
     }
 }
