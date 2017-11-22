@@ -13,9 +13,9 @@ namespace PenteXP
 
         }
 
-        public void CheckWin()
+        public bool CheckWin()
         {
-
+            throw new NotImplementedException();
         }
 
         public void PlayGame()
