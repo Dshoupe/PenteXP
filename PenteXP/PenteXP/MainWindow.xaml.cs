@@ -2,9 +2,11 @@
 using PenteXP.Models;
 using System;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -23,11 +25,12 @@ namespace PenteXP
         private swf.Timer timer = new swf.Timer();
         private const int turnTimer = 20;
         private int ticks = turnTimer;
+        
         public MainWindow()
         {
             InitializeComponent();
             timer.Interval = 1000;
-            timer.Start();
+            //timer.Start();
             timer.Tick += TickTest;
         }
 
@@ -144,6 +147,11 @@ namespace PenteXP
                         label.Background = brush;
                         sender = label;
                     }
+                    CaptureCheck(sender);
+                    if (WinCheck(sender) == true)
+                    {
+
+                    }
                     turnOrder++;
                 }
             }
@@ -151,22 +159,282 @@ namespace PenteXP
             {
                 MessageBox.Show("There is a piece there already");
             }
-            if (WinCheck(sender, e) == true)
-            {
-
-            }
             ticks = turnTimer;
         }
 
-        private bool WinCheck(object sender, MouseButtonEventArgs e)
+        private bool WinCheck(object sender)
         {
             Label label = (Label)sender;
             int blackCounter = 0;
             int whiteCounter = 0;
 
-
+            
 
             return false;
+        }
+
+        private void CaptureCheck(object sender)
+        {
+            Label label = (Label)sender;
+            int startPosition = GameBoard.Children.IndexOf(label);
+            HorizontalLeftCheck(startPosition, label);
+            HorizontalRightCheck(startPosition, label);
+            VerticalUpCheck(startPosition, label);
+            VerticalDownCheck(startPosition, label);
+            DiagonalUpLeftCheck(startPosition, label);
+            DiagonalUpRightCheck(startPosition, label);
+            DiagonalDownLeftCheck(startPosition, label);
+            DiagonalDownRightCheck(startPosition, label);
+        }
+
+        private bool HorizontalLeftCheck(int startPosition, Label sender)
+        {
+            bool isCapture = false;
+            int currentPosition = startPosition - 1;
+            if (currentPosition % (int)BoardSizeSlider.Value > 3)
+            {
+                Label l = (Label)GameBoard.Children[currentPosition];
+                if (l.Name != sender.Name && (l.Name != "RegularTile" && l.Name != "StartingTile"))
+                {
+                    Label secondLabel = (Label)GameBoard.Children[currentPosition - 1];
+                    if (secondLabel.Name != sender.Name && (secondLabel.Name != "RegularTile" && secondLabel.Name != "StartingTile"))
+                    {
+                        Label finalLabel = (Label)GameBoard.Children[currentPosition - 2];
+                        if(finalLabel.Name == sender.Name)
+                        {
+                            isCapture = true;
+                            CaptureRemove(currentPosition, currentPosition-1);
+                            players[turnOrder % 2].Captures++;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                return isCapture;
+            }
+            return isCapture;
+        }
+
+        private bool HorizontalRightCheck(int startPosition, Label sender)
+        {
+            bool isCapture = false;
+            int currentPosition = startPosition + 1;
+            if (currentPosition % (int)BoardSizeSlider.Value < (int)BoardSizeSlider.Value-3)
+            {
+                Label l = (Label)GameBoard.Children[currentPosition];
+                if (l.Name != sender.Name && (l.Name != "RegularTile" && l.Name != "StartingTile"))
+                {
+                    Label secondLabel = (Label)GameBoard.Children[currentPosition + 1];
+                    if (secondLabel.Name != sender.Name && (secondLabel.Name != "RegularTile" && secondLabel.Name != "StartingTile"))
+                    {
+                        Label finalLabel = (Label)GameBoard.Children[currentPosition + 2];
+                        if (finalLabel.Name == sender.Name)
+                        {
+                            isCapture = true;
+                            CaptureRemove(currentPosition, currentPosition + 1);
+                            players[turnOrder % 2].Captures++;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                return isCapture;
+            }
+            return isCapture;
+        }
+
+        private bool VerticalDownCheck(int startPosition, Label sender)
+        {
+            bool isCapture = false;
+            int currentPosition = startPosition + (int)BoardSizeSlider.Value;
+            if (currentPosition / (int)BoardSizeSlider.Value < (int)BoardSizeSlider.Value - 2)
+            {
+                Label l = (Label)GameBoard.Children[currentPosition];
+                if (l.Name != sender.Name && (l.Name != "RegularTile" && l.Name != "StartingTile"))
+                {
+                    Label secondLabel = (Label)GameBoard.Children[currentPosition + (int)BoardSizeSlider.Value];
+                    if (secondLabel.Name != sender.Name && (secondLabel.Name != "RegularTile" && secondLabel.Name != "StartingTile"))
+                    {
+                        Label finalLabel = (Label)GameBoard.Children[currentPosition + ((int)BoardSizeSlider.Value*2)];
+                        if (finalLabel.Name == sender.Name)
+                        {
+                            isCapture = true;
+                            CaptureRemove(currentPosition, currentPosition + (int)BoardSizeSlider.Value);
+                            players[turnOrder % 2].Captures++;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                return isCapture;
+            }
+            return isCapture;
+        }
+
+        private bool VerticalUpCheck(int startPosition, Label sender)
+        {
+            bool isCapture = false;
+            int currentPosition = startPosition - (int)BoardSizeSlider.Value;
+            if (currentPosition / (int)BoardSizeSlider.Value >= 2)
+            {
+                Label l = (Label)GameBoard.Children[currentPosition];
+                if (l.Name != sender.Name && (l.Name != "RegularTile" && l.Name != "StartingTile"))
+                {
+                    Label secondLabel = (Label)GameBoard.Children[currentPosition - (int)BoardSizeSlider.Value];
+                    if (secondLabel.Name != sender.Name && (secondLabel.Name != "RegularTile" && secondLabel.Name != "StartingTile"))
+                    {
+                        Label finalLabel = (Label)GameBoard.Children[currentPosition - ((int)BoardSizeSlider.Value * 2)];
+                        if (finalLabel.Name == sender.Name)
+                        {
+                            isCapture = true;
+                            CaptureRemove(currentPosition, currentPosition - (int)BoardSizeSlider.Value);
+                            players[turnOrder % 2].Captures++;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                return isCapture;
+            }
+            return isCapture;
+        }
+
+        private bool DiagonalUpLeftCheck(int startPosition, Label sender)
+        {
+            bool isCapture = false;
+            int currentPosition = startPosition - (int)BoardSizeSlider.Value - 1;
+            if (currentPosition / (int)BoardSizeSlider.Value >= 2 && currentPosition % (int)BoardSizeSlider.Value > 3)
+            {
+                Label l = (Label)GameBoard.Children[currentPosition];
+                if (l.Name != sender.Name && (l.Name != "RegularTile" && l.Name != "StartingTile"))
+                {
+                    Label secondLabel = (Label)GameBoard.Children[(currentPosition - (int)BoardSizeSlider.Value) - 1];
+                    if (secondLabel.Name != sender.Name && (secondLabel.Name != "RegularTile" && secondLabel.Name != "StartingTile"))
+                    {
+                        Label finalLabel = (Label)GameBoard.Children[(currentPosition - ((int)BoardSizeSlider.Value * 2)) - 2];
+                        if (finalLabel.Name == sender.Name)
+                        {
+                            isCapture = true;
+                            CaptureRemove(currentPosition, currentPosition - (int)BoardSizeSlider.Value - 1);
+                            players[turnOrder % 2].Captures++;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                return isCapture;
+            }
+            return isCapture;
+        }
+
+        private bool DiagonalUpRightCheck(int startPosition, Label sender)
+        {
+            bool isCapture = false;
+            int currentPosition = startPosition - (int)BoardSizeSlider.Value + 1;
+            if (currentPosition / (int)BoardSizeSlider.Value >= 2 && currentPosition % (int)BoardSizeSlider.Value <= (int)BoardSizeSlider.Value - 3) 
+            {
+                Label l = (Label)GameBoard.Children[currentPosition];
+                if (l.Name != sender.Name && (l.Name != "RegularTile" && l.Name != "StartingTile"))
+                {
+                    Label secondLabel = (Label)GameBoard.Children[(currentPosition - (int)BoardSizeSlider.Value) + 1];
+                    if (secondLabel.Name != sender.Name && (secondLabel.Name != "RegularTile" && secondLabel.Name != "StartingTile"))
+                    {
+                        Label finalLabel = (Label)GameBoard.Children[(currentPosition - ((int)BoardSizeSlider.Value * 2)) + 2];
+                        if (finalLabel.Name == sender.Name)
+                        {
+                            isCapture = true;
+                            CaptureRemove(currentPosition, currentPosition - (int)BoardSizeSlider.Value + 1);
+                            players[turnOrder % 2].Captures++;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                return isCapture;
+            }
+            return isCapture;
+        }
+
+        private bool DiagonalDownLeftCheck(int startPosition, Label sender)
+        {
+            bool isCapture = false;
+            int currentPosition = startPosition - (int)BoardSizeSlider.Value - 1;
+            if (currentPosition / (int)BoardSizeSlider.Value < (int)BoardSizeSlider.Value - 2 && currentPosition % (int)BoardSizeSlider.Value > 3 && currentPosition % (int)BoardSizeSlider.Value > 3)
+            {
+                Label l = (Label)GameBoard.Children[currentPosition];
+                if (l.Name != sender.Name && (l.Name != "RegularTile" && l.Name != "StartingTile"))
+                {
+                    Label secondLabel = (Label)GameBoard.Children[(currentPosition + (int)BoardSizeSlider.Value) - 1];
+                    if (secondLabel.Name != sender.Name && (secondLabel.Name != "RegularTile" && secondLabel.Name != "StartingTile"))
+                    {
+                        Label finalLabel = (Label)GameBoard.Children[(currentPosition + ((int)BoardSizeSlider.Value * 2)) - 2];
+                        if (finalLabel.Name == sender.Name)
+                        {
+                            isCapture = true;
+                            CaptureRemove(currentPosition, currentPosition + (int)BoardSizeSlider.Value - 1);
+                            players[turnOrder % 2].Captures++;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                return isCapture;
+            }
+            return isCapture;
+        }
+
+        private bool DiagonalDownRightCheck(int startPosition, Label sender)
+        {
+            bool isCapture = false;
+            int currentPosition = startPosition - (int)BoardSizeSlider.Value + 1;
+            if (currentPosition / (int)BoardSizeSlider.Value < (int)BoardSizeSlider.Value - 2 && currentPosition % (int)BoardSizeSlider.Value <= (int)BoardSizeSlider.Value - 3)
+            {
+                Label l = (Label)GameBoard.Children[currentPosition];
+                if (l.Name != sender.Name && (l.Name != "RegularTile" && l.Name != "StartingTile"))
+                {
+                    Label secondLabel = (Label)GameBoard.Children[(currentPosition + (int)BoardSizeSlider.Value) + 1];
+                    if (secondLabel.Name != sender.Name && (secondLabel.Name != "RegularTile" && secondLabel.Name != "StartingTile"))
+                    {
+                        Label finalLabel = (Label)GameBoard.Children[(currentPosition + ((int)BoardSizeSlider.Value * 2)) + 2];
+                        if (finalLabel.Name == sender.Name)
+                        {
+                            isCapture = true;
+                            CaptureRemove(currentPosition, currentPosition + (int)BoardSizeSlider.Value + 1);
+                            players[turnOrder % 2].Captures++;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                return isCapture;
+            }
+            return isCapture;
+        }
+
+        private void CaptureRemove(int label1, int label2)
+        {
+            Label replaceLabel = new Label();
+            Uri resourceUri = new Uri("Images/BlankBoard.png", UriKind.Relative);
+            StreamResourceInfo streamInfo = Application.GetResourceStream(resourceUri);
+            BitmapFrame temp = BitmapFrame.Create(streamInfo.Stream);
+            var brush = new ImageBrush
+            {
+                ImageSource = temp,
+                Stretch = Stretch.Uniform
+            };
+            replaceLabel.Background = brush;
+            GameBoard.Children.Cast<Label>().ElementAt(label1).Background = brush;
+            GameBoard.Children.Cast<Label>().ElementAt(label2).Background = brush;
+            GameBoard.Children.Cast<Label>().ElementAt(label1).Name = "RegularTile";
+            GameBoard.Children.Cast<Label>().ElementAt(label2).Name = "RegularTile";
         }
 
         private void Refresh_Executed(object sender, ExecutedRoutedEventArgs e)
@@ -242,7 +510,7 @@ namespace PenteXP
 
         private void LoadGame(gameModel game)
         {
-
+            GameBoard.Children.Clear();
         }
     }
 }
