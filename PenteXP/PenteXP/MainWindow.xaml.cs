@@ -29,9 +29,6 @@ namespace PenteXP
         public MainWindow()
         {
             InitializeComponent();
-            timer.Interval = 1000;
-            //timer.Start();
-            timer.Tick += TickTest;
         }
 
         private void TickTest(object sender, EventArgs e)
@@ -458,6 +455,9 @@ namespace PenteXP
             Player1Info.Content = players[0].ToString();
             Player2Info.Content = players[1].ToString();
             InitializeBoard();
+            timer.Interval = 1000;
+            timer.Start();
+            timer.Tick += TickTest;
         }
 
         private void Instructions_Executed(object sender, ExecutedRoutedEventArgs e)
