@@ -7,6 +7,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -20,15 +21,16 @@ namespace PenteXP
     /// </summary>
     public partial class MainWindow : Window
     {
-        private int turnOrder = 1;
-        private Player[] players = new Player[2];
+        private int turnOrder = 2;
+        public Player[] players = new Player[2];
         private swf.Timer timer = new swf.Timer();
         private const int turnTimer = 20;
         private int ticks = turnTimer;
-        
+
         public MainWindow()
         {
             InitializeComponent();
+            timer.Tick += TickTest;
         }
 
         private void TickTest(object sender, EventArgs e)
@@ -56,8 +58,8 @@ namespace PenteXP
                 spot.MouseLeftButtonDown += Label_MouseLeftButtonDown;
                 if (i == boardSize / 2)
                 {
-                    spot.Name = "StartingTile";
-                    Uri resourceUri = new Uri("Images/StartingTile.png", UriKind.Relative);
+                    spot.Name = "BlackPiece";
+                    Uri resourceUri = new Uri("Images/BlackPiece.png", UriKind.Relative);
                     StreamResourceInfo streamInfo = Application.GetResourceStream(resourceUri);
                     BitmapFrame temp = BitmapFrame.Create(streamInfo.Stream);
                     var brush = new ImageBrush
@@ -86,86 +88,72 @@ namespace PenteXP
 
         private void Label_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            Label test = (Label)sender;
-            if (test.Name == "RegularTile" || test.Name == "StartingTile")
+            Label piecePlaced = (Label)sender;
+            if ()
             {
-                if (turnOrder == 1)
+
+            }
+            if (piecePlaced.Name == "RegularTile" || piecePlaced.Name == "StartingTile")
+            {
+                if (turnOrder % 2 == 0)
                 {
                     Label label = (Label)sender;
-                    if (label.Name == "StartingTile")
+                    label.Name = "WhitePiece";
+                    Uri resourceUri = new Uri("Images/WhitePiece.png", UriKind.Relative);
+                    StreamResourceInfo streamInfo = Application.GetResourceStream(resourceUri);
+                    BitmapFrame temp = BitmapFrame.Create(streamInfo.Stream);
+                    var brush = new ImageBrush
                     {
-                        Label spot = (Label)sender;
-                        spot.Name = "BlackPiece";
-                        Uri resourceUri = new Uri("Images/BlackPiece.png", UriKind.Relative);
-                        StreamResourceInfo streamInfo = Application.GetResourceStream(resourceUri);
-                        BitmapFrame temp = BitmapFrame.Create(streamInfo.Stream);
-                        var brush = new ImageBrush
-                        {
-                            ImageSource = temp
-                        };
-                        spot.Background = brush;
-                        sender = spot;
-                        turnOrder++;
-                    }
-                    else
-                    {
-                        MessageBox.Show("You must place the first peice in the center as indicated");
-                    }
+                        ImageSource = temp,
+                        Stretch = Stretch.Fill
+                    };
+                    label.Background = brush;
+                    sender = label;
                 }
                 else
                 {
-                    if (turnOrder % 2 == 0)
+                    Label label = (Label)sender;
+                    label.Name = "BlackPiece";
+                    Uri resourceUri = new Uri("Images/BlackPiece.png", UriKind.Relative);
+                    StreamResourceInfo streamInfo = Application.GetResourceStream(resourceUri);
+                    BitmapFrame temp = BitmapFrame.Create(streamInfo.Stream);
+                    var brush = new ImageBrush
                     {
-                        Label label = (Label)sender;
-                        label.Name = "WhitePiece";
-                        Uri resourceUri = new Uri("Images/WhitePiece.png", UriKind.Relative);
-                        StreamResourceInfo streamInfo = Application.GetResourceStream(resourceUri);
-                        BitmapFrame temp = BitmapFrame.Create(streamInfo.Stream);
-                        var brush = new ImageBrush
-                        {
-                            ImageSource = temp,
-                            Stretch = Stretch.Fill
-                        };
-                        label.Background = brush;
-                        sender = label;
-                    }
-                    else
-                    {
-                        Label label = (Label)sender;
-                        label.Name = "BlackPiece";
-                        Uri resourceUri = new Uri("Images/BlackPiece.png", UriKind.Relative);
-                        StreamResourceInfo streamInfo = Application.GetResourceStream(resourceUri);
-                        BitmapFrame temp = BitmapFrame.Create(streamInfo.Stream);
-                        var brush = new ImageBrush
-                        {
-                            ImageSource = temp,
-                            Stretch = Stretch.Fill
-                        };
-                        label.Background = brush;
-                        sender = label;
-                    }
-                    CaptureCheck(sender);
-                    if (WinCheck(sender) == true)
-                    {
-
-                    }
-                    turnOrder++;
+                        ImageSource = temp,
+                        Stretch = Stretch.Fill
+                    };
+                    label.Background = brush;
+                    sender = label;
                 }
+                CaptureCheck(sender);
+                turnOrder++;
+                UpdatePlayerTurn();
             }
             else
             {
                 MessageBox.Show("There is a piece there already");
             }
             ticks = turnTimer;
+            if (WinCheck(sender) == true)
+            {
+                timer.Stop();
+                MessageBox.Show($"{players[turnOrder % 2].Name} wins!");
+                Refresh_Executed(sender, null);
+            }
         }
 
         private bool WinCheck(object sender)
         {
+            bool playerWin = false;
+            if (players[turnOrder % 2].Captures >= 5)
+            {
+                playerWin = true;
+                return playerWin;
+            }
             Label label = (Label)sender;
             int blackCounter = 0;
             int whiteCounter = 0;
 
-            
 
             return false;
         }
@@ -174,21 +162,21 @@ namespace PenteXP
         {
             Label label = (Label)sender;
             int startPosition = GameBoard.Children.IndexOf(label);
-            HorizontalLeftCheck(startPosition, label);
-            HorizontalRightCheck(startPosition, label);
-            VerticalUpCheck(startPosition, label);
-            VerticalDownCheck(startPosition, label);
-            DiagonalUpLeftCheck(startPosition, label);
-            DiagonalUpRightCheck(startPosition, label);
-            DiagonalDownLeftCheck(startPosition, label);
-            DiagonalDownRightCheck(startPosition, label);
+            HorizontalLeftCheckCapture(startPosition, label);
+            HorizontalRightCheckCapture(startPosition, label);
+            VerticalUpCheckCapture(startPosition, label);
+            VerticalDownCheckCapture(startPosition, label);
+            DiagonalUpLeftCheckCapture(startPosition, label);
+            DiagonalUpRightCheckCapture(startPosition, label);
+            DiagonalDownLeftCheckCapture(startPosition, label);
+            DiagonalDownRightCheckCapture(startPosition, label);
         }
 
-        private bool HorizontalLeftCheck(int startPosition, Label sender)
+        private bool HorizontalLeftCheckCapture(int startPosition, Label sender)
         {
             bool isCapture = false;
             int currentPosition = startPosition - 1;
-            if (currentPosition % (int)BoardSizeSlider.Value > 3)
+            if (currentPosition % (int)BoardSizeSlider.Value >= 2 && currentPosition >= 0)
             {
                 Label l = (Label)GameBoard.Children[currentPosition];
                 if (l.Name != sender.Name && (l.Name != "RegularTile" && l.Name != "StartingTile"))
@@ -197,11 +185,11 @@ namespace PenteXP
                     if (secondLabel.Name != sender.Name && (secondLabel.Name != "RegularTile" && secondLabel.Name != "StartingTile"))
                     {
                         Label finalLabel = (Label)GameBoard.Children[currentPosition - 2];
-                        if(finalLabel.Name == sender.Name)
+                        if (finalLabel.Name == sender.Name)
                         {
                             isCapture = true;
-                            CaptureRemove(currentPosition, currentPosition-1);
-                            players[turnOrder % 2].Captures++;
+                            CaptureRemove(currentPosition, currentPosition - 1);
+                            players[(turnOrder-1) % 2].Captures = 1;
                         }
                     }
                 }
@@ -213,11 +201,11 @@ namespace PenteXP
             return isCapture;
         }
 
-        private bool HorizontalRightCheck(int startPosition, Label sender)
+        private bool HorizontalRightCheckCapture(int startPosition, Label sender)
         {
             bool isCapture = false;
             int currentPosition = startPosition + 1;
-            if (currentPosition % (int)BoardSizeSlider.Value < (int)BoardSizeSlider.Value-3)
+            if (currentPosition % (int)BoardSizeSlider.Value < (int)BoardSizeSlider.Value - 2 && currentPosition < (int)BoardSizeSlider.Value * (int)BoardSizeSlider.Value)
             {
                 Label l = (Label)GameBoard.Children[currentPosition];
                 if (l.Name != sender.Name && (l.Name != "RegularTile" && l.Name != "StartingTile"))
@@ -230,7 +218,7 @@ namespace PenteXP
                         {
                             isCapture = true;
                             CaptureRemove(currentPosition, currentPosition + 1);
-                            players[turnOrder % 2].Captures++;
+                            players[(turnOrder-1) % 2].Captures = 1;
                         }
                     }
                 }
@@ -242,7 +230,7 @@ namespace PenteXP
             return isCapture;
         }
 
-        private bool VerticalDownCheck(int startPosition, Label sender)
+        private bool VerticalDownCheckCapture(int startPosition, Label sender)
         {
             bool isCapture = false;
             int currentPosition = startPosition + (int)BoardSizeSlider.Value;
@@ -254,12 +242,12 @@ namespace PenteXP
                     Label secondLabel = (Label)GameBoard.Children[currentPosition + (int)BoardSizeSlider.Value];
                     if (secondLabel.Name != sender.Name && (secondLabel.Name != "RegularTile" && secondLabel.Name != "StartingTile"))
                     {
-                        Label finalLabel = (Label)GameBoard.Children[currentPosition + ((int)BoardSizeSlider.Value*2)];
+                        Label finalLabel = (Label)GameBoard.Children[currentPosition + ((int)BoardSizeSlider.Value * 2)];
                         if (finalLabel.Name == sender.Name)
                         {
                             isCapture = true;
                             CaptureRemove(currentPosition, currentPosition + (int)BoardSizeSlider.Value);
-                            players[turnOrder % 2].Captures++;
+                            players[(turnOrder-1) % 2].Captures = 1;
                         }
                     }
                 }
@@ -271,7 +259,7 @@ namespace PenteXP
             return isCapture;
         }
 
-        private bool VerticalUpCheck(int startPosition, Label sender)
+        private bool VerticalUpCheckCapture(int startPosition, Label sender)
         {
             bool isCapture = false;
             int currentPosition = startPosition - (int)BoardSizeSlider.Value;
@@ -288,7 +276,7 @@ namespace PenteXP
                         {
                             isCapture = true;
                             CaptureRemove(currentPosition, currentPosition - (int)BoardSizeSlider.Value);
-                            players[turnOrder % 2].Captures++;
+                            players[(turnOrder-1) % 2].Captures = 1;
                         }
                     }
                 }
@@ -299,12 +287,12 @@ namespace PenteXP
             }
             return isCapture;
         }
-
-        private bool DiagonalUpLeftCheck(int startPosition, Label sender)
+        
+        private bool DiagonalUpLeftCheckCapture(int startPosition, Label sender)
         {
             bool isCapture = false;
             int currentPosition = startPosition - (int)BoardSizeSlider.Value - 1;
-            if (currentPosition / (int)BoardSizeSlider.Value >= 2 && currentPosition % (int)BoardSizeSlider.Value > 3)
+            if (currentPosition / (int)BoardSizeSlider.Value >= 2 && currentPosition % (int)BoardSizeSlider.Value >= 2)
             {
                 Label l = (Label)GameBoard.Children[currentPosition];
                 if (l.Name != sender.Name && (l.Name != "RegularTile" && l.Name != "StartingTile"))
@@ -317,7 +305,7 @@ namespace PenteXP
                         {
                             isCapture = true;
                             CaptureRemove(currentPosition, currentPosition - (int)BoardSizeSlider.Value - 1);
-                            players[turnOrder % 2].Captures++;
+                            players[(turnOrder-1) % 2].Captures = 1;
                         }
                     }
                 }
@@ -329,11 +317,11 @@ namespace PenteXP
             return isCapture;
         }
 
-        private bool DiagonalUpRightCheck(int startPosition, Label sender)
+        private bool DiagonalUpRightCheckCapture(int startPosition, Label sender)
         {
             bool isCapture = false;
             int currentPosition = startPosition - (int)BoardSizeSlider.Value + 1;
-            if (currentPosition / (int)BoardSizeSlider.Value >= 2 && currentPosition % (int)BoardSizeSlider.Value <= (int)BoardSizeSlider.Value - 3) 
+            if (currentPosition / (int)BoardSizeSlider.Value >= 2 && currentPosition % (int)BoardSizeSlider.Value <= (int)BoardSizeSlider.Value - 3)
             {
                 Label l = (Label)GameBoard.Children[currentPosition];
                 if (l.Name != sender.Name && (l.Name != "RegularTile" && l.Name != "StartingTile"))
@@ -346,7 +334,7 @@ namespace PenteXP
                         {
                             isCapture = true;
                             CaptureRemove(currentPosition, currentPosition - (int)BoardSizeSlider.Value + 1);
-                            players[turnOrder % 2].Captures++;
+                            players[(turnOrder-1) % 2].Captures = 1;
                         }
                     }
                 }
@@ -358,11 +346,11 @@ namespace PenteXP
             return isCapture;
         }
 
-        private bool DiagonalDownLeftCheck(int startPosition, Label sender)
+        private bool DiagonalDownLeftCheckCapture(int startPosition, Label sender)
         {
             bool isCapture = false;
-            int currentPosition = startPosition - (int)BoardSizeSlider.Value - 1;
-            if (currentPosition / (int)BoardSizeSlider.Value < (int)BoardSizeSlider.Value - 2 && currentPosition % (int)BoardSizeSlider.Value > 3 && currentPosition % (int)BoardSizeSlider.Value > 3)
+            int currentPosition = startPosition + (int)BoardSizeSlider.Value - 1;
+            if (currentPosition / (int)BoardSizeSlider.Value < (int)BoardSizeSlider.Value - 2 && currentPosition % (int)BoardSizeSlider.Value >= 2 && currentPosition % (int)BoardSizeSlider.Value >= 2)
             {
                 Label l = (Label)GameBoard.Children[currentPosition];
                 if (l.Name != sender.Name && (l.Name != "RegularTile" && l.Name != "StartingTile"))
@@ -375,7 +363,7 @@ namespace PenteXP
                         {
                             isCapture = true;
                             CaptureRemove(currentPosition, currentPosition + (int)BoardSizeSlider.Value - 1);
-                            players[turnOrder % 2].Captures++;
+                            players[(turnOrder-1) % 2].Captures = 1;
                         }
                     }
                 }
@@ -387,10 +375,10 @@ namespace PenteXP
             return isCapture;
         }
 
-        private bool DiagonalDownRightCheck(int startPosition, Label sender)
+        private bool DiagonalDownRightCheckCapture(int startPosition, Label sender)
         {
             bool isCapture = false;
-            int currentPosition = startPosition - (int)BoardSizeSlider.Value + 1;
+            int currentPosition = startPosition + (int)BoardSizeSlider.Value + 1;
             if (currentPosition / (int)BoardSizeSlider.Value < (int)BoardSizeSlider.Value - 2 && currentPosition % (int)BoardSizeSlider.Value <= (int)BoardSizeSlider.Value - 3)
             {
                 Label l = (Label)GameBoard.Children[currentPosition];
@@ -404,7 +392,7 @@ namespace PenteXP
                         {
                             isCapture = true;
                             CaptureRemove(currentPosition, currentPosition + (int)BoardSizeSlider.Value + 1);
-                            players[turnOrder % 2].Captures++;
+                            players[(turnOrder-1) % 2].Captures = 1;
                         }
                     }
                 }
@@ -414,6 +402,12 @@ namespace PenteXP
                 return isCapture;
             }
             return isCapture;
+        }
+
+        private void UpdatePlayerTurn()
+        {
+            Player1Info.Content = players[0].ToString();
+            Player2Info.Content = players[1].ToString();
         }
 
         private void CaptureRemove(int label1, int label2)
@@ -436,13 +430,15 @@ namespace PenteXP
 
         private void Refresh_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            turnOrder = 1;
+            timer.Stop();
+            turnOrder = 2;
             GameBoard.Children.Clear();
             Player.id = 1;
             PlayerTurnOrder.Visibility = Visibility.Hidden;
             PlayerDetails.Visibility = Visibility.Visible;
             BoardCover.Visibility = Visibility.Visible;
             players = new Player[2];
+            ticks = 0;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -452,12 +448,10 @@ namespace PenteXP
             players[1] = new HumanPlayer(Player2Name.Text);
             PlayerDetails.Visibility = Visibility.Hidden;
             PlayerTurnOrder.Visibility = Visibility.Visible;
-            Player1Info.Content = players[0].ToString();
-            Player2Info.Content = players[1].ToString();
             InitializeBoard();
             timer.Interval = 1000;
             timer.Start();
-            timer.Tick += TickTest;
+            UpdatePlayerTurn();
         }
 
         private void Instructions_Executed(object sender, ExecutedRoutedEventArgs e)
@@ -504,7 +498,7 @@ namespace PenteXP
                     BinaryFormatter bf = new BinaryFormatter();
                     newGame = (gameModel)bf.Deserialize(stream);
                 }
-                
+
             }
         }
 
