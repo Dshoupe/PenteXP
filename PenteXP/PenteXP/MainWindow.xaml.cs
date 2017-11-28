@@ -91,10 +91,15 @@ namespace PenteXP
         private void Label_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             Label piecePlaced = (Label)sender;
-            
-            if (piecePlaced.Name == "RegularTile" || piecePlaced.Name == "StartingTile")
+            if (turnOrder == 3)
             {
-                if (turnOrder % 2 == 0)
+                int playerPiece = GameBoard.Children.IndexOf((Label)sender);
+                int row3Center = ((int)BoardSizeSlider.Value * (int)BoardSizeSlider.Value) / 2;
+                int row1Center = row3Center - ((int)BoardSizeSlider.Value * 2);
+                int row2Center = row3Center - ((int)BoardSizeSlider.Value);
+                int row4Center = row3Center + ((int)BoardSizeSlider.Value);
+                int row5Center = row3Center + ((int)BoardSizeSlider.Value * 2);
+                if ((playerPiece >= row1Center - 2 && playerPiece <= row1Center + 2) || (playerPiece >= row2Center - 2 && playerPiece <= row2Center + 2) || (playerPiece >= row3Center - 2 && playerPiece <= row3Center + 2) || (playerPiece >= row4Center - 2 && playerPiece <= row4Center + 2) || (playerPiece >= row5Center - 2 && playerPiece <= row5Center + 2))
                 {
                     timer.Stop();
                     MessageBox.Show("Invalid Move: Tournament rules state that you must place your second piece at least 3 spaces away from the center.");
@@ -159,7 +164,7 @@ namespace PenteXP
                     CaptureCheck(sender);
                     turnOrder++;
                     UpdatePlayerTurn();
-                    
+
                 }
                 else
                 {
