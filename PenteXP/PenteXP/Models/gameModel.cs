@@ -11,5 +11,6 @@ namespace PenteXP.Models
     {
         public List<String> boardpieces = new List<String>();
         public List<Player> players = new List<Player>();
+        public int lastTurn = 0;
     }
 }

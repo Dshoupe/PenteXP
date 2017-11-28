@@ -31,6 +31,7 @@ namespace PenteXP
         {
             InitializeComponent();
             timer.Tick += TickTest;
+            timer.Interval = 1000;
         }
 
         private void TickTest(object sender, EventArgs e)
@@ -42,6 +43,7 @@ namespace PenteXP
                 ticks = turnTimer;
                 MessageBox.Show("You're turn has been skipped", "Turn Skipped!", MessageBoxButton.OK);
                 turnOrder++;
+                UpdatePlayerTurn();
                 timer.Start();
             }
             test.Content = ticks;
@@ -89,28 +91,21 @@ namespace PenteXP
         private void Label_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             Label piecePlaced = (Label)sender;
-            if ()
+            if (turnOrder == 3)
             {
-
-            }
-            if (piecePlaced.Name == "RegularTile" || piecePlaced.Name == "StartingTile")
-            {
-                if (turnOrder % 2 == 0)
+                int playerPiece = GameBoard.Children.IndexOf((Label)sender);
+                int row3Center = ((int)BoardSizeSlider.Value * (int)BoardSizeSlider.Value)/2;
+                int row1Center = row3Center - ((int)BoardSizeSlider.Value * 2);
+                int row2Center = row3Center - ((int)BoardSizeSlider.Value);
+                int row4Center = row3Center + ((int)BoardSizeSlider.Value);
+                int row5Center = row3Center + ((int)BoardSizeSlider.Value * 2);
+                if ((playerPiece >= row1Center - 2 && playerPiece <= row1Center + 2) || (playerPiece >= row2Center - 2 && playerPiece <= row2Center + 2) || (playerPiece >= row3Center - 2 && playerPiece <= row3Center + 2) || (playerPiece >= row4Center - 2 && playerPiece <= row4Center + 2) || (playerPiece >= row5Center - 2 && playerPiece <= row5Center + 2))
                 {
-                    Label label = (Label)sender;
-                    label.Name = "WhitePiece";
-                    Uri resourceUri = new Uri("Images/WhitePiece.png", UriKind.Relative);
-                    StreamResourceInfo streamInfo = Application.GetResourceStream(resourceUri);
-                    BitmapFrame temp = BitmapFrame.Create(streamInfo.Stream);
-                    var brush = new ImageBrush
-                    {
-                        ImageSource = temp,
-                        Stretch = Stretch.Fill
-                    };
-                    label.Background = brush;
-                    sender = label;
+                    timer.Stop();
+                    MessageBox.Show("Invalid Move: Tournament rules state that you must place your second piece at least 3 spaces away from the center.");
+                    timer.Start();
                 }
-                else
+                else if (piecePlaced.Name == "RegularTile" || piecePlaced.Name == "StartingTile")
                 {
                     Label label = (Label)sender;
                     label.Name = "BlackPiece";
@@ -124,22 +119,65 @@ namespace PenteXP
                     };
                     label.Background = brush;
                     sender = label;
+                    turnOrder++;
+                    UpdatePlayerTurn();
                 }
-                CaptureCheck(sender);
-                turnOrder++;
-                UpdatePlayerTurn();
+                else
+                {
+                    MessageBox.Show("There is a piece there already");
+                }
             }
             else
             {
-                MessageBox.Show("There is a piece there already");
+                if (piecePlaced.Name == "RegularTile" || piecePlaced.Name == "StartingTile")
+                {
+                    if (turnOrder % 2 == 0)
+                    {
+                        Label label = (Label)sender;
+                        label.Name = "WhitePiece";
+                        Uri resourceUri = new Uri("Images/WhitePiece.png", UriKind.Relative);
+                        StreamResourceInfo streamInfo = Application.GetResourceStream(resourceUri);
+                        BitmapFrame temp = BitmapFrame.Create(streamInfo.Stream);
+                        var brush = new ImageBrush
+                        {
+                            ImageSource = temp,
+                            Stretch = Stretch.Fill
+                        };
+                        label.Background = brush;
+                        sender = label;
+                    }
+                    else
+                    {
+                        Label label = (Label)sender;
+                        label.Name = "BlackPiece";
+                        Uri resourceUri = new Uri("Images/BlackPiece.png", UriKind.Relative);
+                        StreamResourceInfo streamInfo = Application.GetResourceStream(resourceUri);
+                        BitmapFrame temp = BitmapFrame.Create(streamInfo.Stream);
+                        var brush = new ImageBrush
+                        {
+                            ImageSource = temp,
+                            Stretch = Stretch.Fill
+                        };
+                        label.Background = brush;
+                        sender = label;
+                    }
+                    CaptureCheck(sender);
+                    turnOrder++;
+                    UpdatePlayerTurn();
+                    
+                }
+                else
+                {
+                    MessageBox.Show("There is a piece there already");
+                }
+                if (WinCheck(sender) == true)
+                {
+                    timer.Stop();
+                    MessageBox.Show($"{players[turnOrder % 2].Name} wins!");
+                    Refresh_Executed(sender, null);
+                }
             }
             ticks = turnTimer;
-            if (WinCheck(sender) == true)
-            {
-                timer.Stop();
-                MessageBox.Show($"{players[turnOrder % 2].Name} wins!");
-                Refresh_Executed(sender, null);
-            }
         }
 
         private bool WinCheck(object sender)
@@ -408,6 +446,16 @@ namespace PenteXP
         {
             Player1Info.Content = players[0].ToString();
             Player2Info.Content = players[1].ToString();
+            if (turnOrder % 2 == 0)
+            {
+                Player1Info.Background = Brushes.White;
+                Player2Info.Background = Brushes.IndianRed;
+            }
+            else
+            {
+                Player1Info.Background = Brushes.IndianRed;
+                Player2Info.Background = Brushes.White;
+            }
         }
 
         private void CaptureRemove(int label1, int label2)
@@ -449,7 +497,6 @@ namespace PenteXP
             PlayerDetails.Visibility = Visibility.Hidden;
             PlayerTurnOrder.Visibility = Visibility.Visible;
             InitializeBoard();
-            timer.Interval = 1000;
             timer.Start();
             UpdatePlayerTurn();
         }
@@ -470,6 +517,8 @@ namespace PenteXP
             {
                 model.players.Add(player);
             }
+
+            model.lastTurn = turnOrder;
 
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.DefaultExt = ".pente";
@@ -498,13 +547,68 @@ namespace PenteXP
                     BinaryFormatter bf = new BinaryFormatter();
                     newGame = (gameModel)bf.Deserialize(stream);
                 }
-
+                LoadGame(newGame);
             }
         }
 
-        private void LoadGame(gameModel game)
+        private void LoadGame(gameModel save)
         {
+            turnOrder = save.lastTurn;
+            timer.Stop();
+            BoardCover.Visibility = Visibility.Hidden;
+            PlayerDetails.Visibility = Visibility.Hidden;
+            PlayerTurnOrder.Visibility = Visibility.Visible;
             GameBoard.Children.Clear();
+            players = save.players.ToArray();
+            UpdatePlayerTurn();
+            foreach (string name in save.boardpieces)
+            {
+                Label label = new Label();
+                switch (name)
+                {
+                    case "BlackPiece":
+                        label.Name = "BlackPiece";
+                        Uri resourceUri = new Uri("Images/BlackPiece.png", UriKind.Relative);
+                        StreamResourceInfo streamInfo = Application.GetResourceStream(resourceUri);
+                        BitmapFrame temp = BitmapFrame.Create(streamInfo.Stream);
+                        var brush = new ImageBrush
+                        {
+                            ImageSource = temp,
+                            Stretch = Stretch.Fill
+                        };
+                        label.Background = brush;
+                        break;
+                    case "WhitePiece":
+                        label.Name = "WhitePiece";
+                        Uri resourceUri2 = new Uri("Images/WhitePiece.png", UriKind.Relative);
+                        StreamResourceInfo streamInfo2 = Application.GetResourceStream(resourceUri2);
+                        BitmapFrame temp2 = BitmapFrame.Create(streamInfo2.Stream);
+                        var brush2 = new ImageBrush
+                        {
+                            ImageSource = temp2,
+                            Stretch = Stretch.Fill
+                        };
+                        label.Background = brush2;
+                        break;
+                    case "RegularTile":
+                        label.Name = "RegularTile";
+                        Uri resourceUri3 = new Uri("Images/BlankBoard.png", UriKind.Relative);
+                        StreamResourceInfo streamInfo3 = Application.GetResourceStream(resourceUri3);
+                        BitmapFrame temp3 = BitmapFrame.Create(streamInfo3.Stream);
+                        var brush3 = new ImageBrush
+                        {
+                            ImageSource = temp3,
+                            Stretch = Stretch.Fill
+                        };
+                        label.Background = brush3;
+                        break;
+                }
+                label.MouseLeftButtonDown += Label_MouseLeftButtonDown;
+                GameBoard.Children.Add(label);
+            }
+            ticks = turnTimer;
+            MessageBox.Show("Your game has loaded, the timer will now start!");
+            timer.Start();
         }
     }
 }
