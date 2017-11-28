@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PenteXP.Models;
+using PenteXP;
 
 namespace PenteTests
 {
@@ -129,34 +130,15 @@ namespace PenteTests
         public void GetPlayerColorForPlayer1()
         {
             HumanPlayer p1 = new HumanPlayer("Test Player");
-            p1.id = 1;
             Assert.AreEqual(p1.PlayerColor, Colors.Black);
         }
 
         [TestMethod]
         public void GetPlayerColorForPlayer2()
         {
+            HumanPlayer p1 = new HumanPlayer("Test Player");
             HumanPlayer p2 = new HumanPlayer("Test Player");
-            p2.id = 2;
             Assert.AreEqual(p2.PlayerColor, Colors.White);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void SetInvalidColor()
-        {
-            HumanPlayer p = new HumanPlayer("Test Player");
-            p.id = 1;
-            p.PlayerColor = COlors.Orange;
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void SetColorNull()
-        {
-            HumanPlayer p = new HumanPlayer("Test Player");
-            p.id = 1;
-            p.PlayerColor = null;
         }
 
         #endregion
