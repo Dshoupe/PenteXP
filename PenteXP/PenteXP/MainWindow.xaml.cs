@@ -189,11 +189,65 @@ namespace PenteXP
                 return playerWin;
             }
             Label label = (Label)sender;
-            int blackCounter = 0;
-            int whiteCounter = 0;
+            if (!playerWin)
+            {
+                playerWin = HorizontalWinCheck(GameBoard.Children.IndexOf(label), label);
+            }
 
 
-            return false;
+            return playerWin;
+        }
+
+        private bool HorizontalWinCheck(int startPosition, Label sender)
+        {
+            bool hasWon = false;
+            int totalRowCount = 1;
+            int startCap = (((startPosition / (int)BoardSizeSlider.Value)) * (int)BoardSizeSlider.Value);
+            int endCap = (((startPosition / (int)BoardSizeSlider.Value)+1) * (int)BoardSizeSlider.Value) - 1;
+            bool keepGoing = true;
+            for (int i = startPosition-1; i >= startCap && keepGoing; i--)
+            {
+                Label l = (Label)GameBoard.Children[i];
+                if (l.Name == sender.Name)
+                {
+                    totalRowCount++;
+                }
+                else
+                {
+                    keepGoing = false;
+                }
+
+            }
+            keepGoing = true;
+            for (int i = startPosition+1; i <= endCap && keepGoing; i++)
+            {
+                Label l = (Label)GameBoard.Children[i];
+                if (l.Name == sender.Name)
+                {
+                    totalRowCount++;
+                }
+                else
+                {
+                    keepGoing = false;
+                }
+            }
+            hasWon = totalRowCount >= 5;
+            return hasWon;
+        }
+
+        private void VerticalWinCheck(int startPosition, Label sender)
+        {
+
+        }
+
+        private void DiagonalRightWinCheck(int startPosition, Label sender)
+        {
+
+        }
+
+        private void DiagonalLeftWinCheck(int startPosition, Label sender)
+        {
+
         }
 
         private void CaptureCheck(object sender)
