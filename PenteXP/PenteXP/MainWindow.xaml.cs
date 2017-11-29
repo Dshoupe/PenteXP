@@ -690,7 +690,7 @@ namespace PenteXP
 
         private void Instructions_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            MessageBox.Show("\t\tPente\nPlace pieces 5 in a row or get 5 captures to win");
+            MessageBox.Show("\t\t\t   Pente Rules: \n\nHow to win: \nPlace five or more of your stones in a row, this can horizontally, vertically, or diagonally with no empty points in between the stones. \nYou may also win by capturing five or more pairs of your opponent's stones \n\nHow to make your turn: \nWhen it is your turn you will have twenty seconds to choose a place on the board to place your stone. \nTo place your stone click on a part of the board where the board’s grid intersects as those are the places on the board that represent the spaces. \n\nConditions on placing your stone: \nIf you are player one(the black stones), your first move is made for you. The first stone is placed in the center of the board. \nThen during player one’s second turn they cannot place their second black stone within three intersections of the first black stone. \n\nCaptures: \nTo capture your opponent’s pieces you must find a spot where your opponent has placed two of their pieces next to each other,  no more and no less than two, and place two of your pieces to bracket them in at the ends. The captured pieces are then removed from the board. \nCaptures can occur vertically, horizontally, or diagonally. Multiple captures can also occur with a single turn.");
         }
 
         private void SaveGame_Executed(object sender, ExecutedRoutedEventArgs e)
