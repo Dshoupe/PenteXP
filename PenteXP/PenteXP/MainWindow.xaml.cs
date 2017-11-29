@@ -193,6 +193,18 @@ namespace PenteXP
             {
                 playerWin = HorizontalWinCheck(GameBoard.Children.IndexOf(label), label);
             }
+            if (!playerWin)
+            {
+                playerWin = VerticalWinCheck(GameBoard.Children.IndexOf(label), label);
+            }
+            if (!playerWin)
+            {
+                playerWin = DiagonalRightWinCheck(GameBoard.Children.IndexOf(label), label);
+            }
+            if (!playerWin)
+            {
+                playerWin = DiagonalLeftWinCheck(GameBoard.Children.IndexOf(label), label);
+            }
 
 
             return playerWin;
@@ -205,6 +217,8 @@ namespace PenteXP
             int startCap = (((startPosition / (int)BoardSizeSlider.Value)) * (int)BoardSizeSlider.Value);
             int endCap = (((startPosition / (int)BoardSizeSlider.Value)+1) * (int)BoardSizeSlider.Value) - 1;
             bool keepGoing = true;
+            int emptyEndCaps = 0;
+            
             for (int i = startPosition-1; i >= startCap && keepGoing; i--)
             {
                 Label l = (Label)GameBoard.Children[i];
@@ -214,6 +228,10 @@ namespace PenteXP
                 }
                 else
                 {
+                    if (l.Name == "RegularTile" || l.Name == "StartingTile")
+                    {
+                        emptyEndCaps++;
+                    }
                     keepGoing = false;
                 }
 
@@ -228,26 +246,196 @@ namespace PenteXP
                 }
                 else
                 {
+                    if (l.Name == "RegularTile" || l.Name == "StartingTile")
+                    {
+                        emptyEndCaps++;
+                    }
                     keepGoing = false;
                 }
             }
             hasWon = totalRowCount >= 5;
+            if (!hasWon)
+            {
+                if (totalRowCount == 3 && emptyEndCaps == 2)
+                {
+                    MessageBox.Show("TRIA!");
+                }
+                else if(totalRowCount == 4 && emptyEndCaps >= 1)
+                {
+                    MessageBox.Show("TESSERA!");
+                }
+            }
             return hasWon;
         }
 
-        private void VerticalWinCheck(int startPosition, Label sender)
+        private bool VerticalWinCheck(int startPosition, Label sender)
         {
+            bool hasWon = false;
+            int totalRowCount = 1;
+            int startCap = startPosition % (int)BoardSizeSlider.Value;
+            int endCap = (int)BoardSizeSlider.Value* (int)BoardSizeSlider.Value - ((int)BoardSizeSlider.Value - startCap);
+            bool keepGoing = true;
+            int emptyEndCaps = 0;
 
+            for (int i = startPosition - (int)BoardSizeSlider.Value; i >= startCap && keepGoing; i -= (int)BoardSizeSlider.Value)
+            {
+                Label l = (Label)GameBoard.Children[i];
+                if (l.Name == sender.Name)
+                {
+                    totalRowCount++;
+                }
+                else
+                {
+                    if (l.Name == "RegularTile" || l.Name == "StartingTile")
+                    {
+                        emptyEndCaps++;
+                    }
+                    keepGoing = false;
+                }
+
+            }
+            keepGoing = true;
+            for (int i = startPosition + (int)BoardSizeSlider.Value; i <= endCap && keepGoing; i += (int)BoardSizeSlider.Value)
+            {
+                Label l = (Label)GameBoard.Children[i];
+                if (l.Name == sender.Name)
+                {
+                    totalRowCount++;
+                }
+                else
+                {
+                    if (l.Name == "RegularTile" || l.Name == "StartingTile")
+                    {
+                        emptyEndCaps++;
+                    }
+                    keepGoing = false;
+                }
+            }
+            hasWon = totalRowCount >= 5;
+            if (!hasWon)
+            {
+                if (totalRowCount == 3 && emptyEndCaps == 2)
+                {
+                    MessageBox.Show("TRIA!");
+                }
+                else if (totalRowCount == 4 && emptyEndCaps >= 1)
+                {
+                    MessageBox.Show("TESSERA!");
+                }
+            }
+            return hasWon;
         }
 
-        private void DiagonalRightWinCheck(int startPosition, Label sender)
+        private bool DiagonalRightWinCheck(int startPosition, Label sender)
         {
+            bool hasWon = false;
+            int totalRowCount = 1;
+            bool keepGoing = true;
+            int emptyEndCaps = 0;
 
+            for (int i = startPosition - (int)BoardSizeSlider.Value +1 ; keepGoing && i > 0; i -= ((int)BoardSizeSlider.Value - 1))
+            {
+                Label l = (Label)GameBoard.Children[i];
+                if (l.Name == sender.Name)
+                {
+                    totalRowCount++;
+                }
+                else
+                {
+                    if (l.Name == "RegularTile" || l.Name == "StartingTile")
+                    {
+                        emptyEndCaps++;
+                    }
+                    keepGoing = false;
+                }
+
+            }
+            keepGoing = true;
+            for (int i = startPosition + (int)BoardSizeSlider.Value - 1; keepGoing && i < (int)BoardSizeSlider.Value * (int)BoardSizeSlider.Value; i += (int)BoardSizeSlider.Value - 1)
+            {
+                Label l = (Label)GameBoard.Children[i];
+                if (l.Name == sender.Name)
+                {
+                    totalRowCount++;
+                }
+                else
+                {
+                    if (l.Name == "RegularTile" || l.Name == "StartingTile")
+                    {
+                        emptyEndCaps++;
+                    }
+                    keepGoing = false;
+                }
+            }
+            hasWon = totalRowCount >= 5;
+            if (!hasWon)
+            {
+                if (totalRowCount == 3 && emptyEndCaps == 2)
+                {
+                    MessageBox.Show("TRIA!");
+                }
+                else if (totalRowCount == 4 && emptyEndCaps >= 1)
+                {
+                    MessageBox.Show("TESSERA!");
+                }
+            }
+            return hasWon;
         }
 
-        private void DiagonalLeftWinCheck(int startPosition, Label sender)
+        private bool DiagonalLeftWinCheck(int startPosition, Label sender)
         {
+            bool hasWon = false;
+            int totalRowCount = 1;
+            bool keepGoing = true;
+            int emptyEndCaps = 0;
 
+            for (int i = startPosition - (int)BoardSizeSlider.Value - 1; keepGoing && i > 0; i -= ((int)BoardSizeSlider.Value + 1))
+            {
+                Label l = (Label)GameBoard.Children[i];
+                if (l.Name == sender.Name)
+                {
+                    totalRowCount++;
+                }
+                else
+                {
+                    if (l.Name == "RegularTile" || l.Name == "StartingTile")
+                    {
+                        emptyEndCaps++;
+                    }
+                    keepGoing = false;
+                }
+
+            }
+            keepGoing = true;
+            for (int i = startPosition + (int)BoardSizeSlider.Value + 1; keepGoing && i < (int)BoardSizeSlider.Value * (int)BoardSizeSlider.Value; i += (int)BoardSizeSlider.Value + 1)
+            {
+                Label l = (Label)GameBoard.Children[i];
+                if (l.Name == sender.Name)
+                {
+                    totalRowCount++;
+                }
+                else
+                {
+                    if (l.Name == "RegularTile" || l.Name == "StartingTile")
+                    {
+                        emptyEndCaps++;
+                    }
+                    keepGoing = false;
+                }
+            }
+            hasWon = totalRowCount >= 5;
+            if (!hasWon)
+            {
+                if (totalRowCount == 3 && emptyEndCaps == 2)
+                {
+                    MessageBox.Show("TRIA!");
+                }
+                else if (totalRowCount == 4 && emptyEndCaps >= 1)
+                {
+                    MessageBox.Show("TESSERA!");
+                }
+            }
+            return hasWon;
         }
 
         private void CaptureCheck(object sender)
@@ -264,9 +452,8 @@ namespace PenteXP
             DiagonalDownRightCheckCapture(startPosition, label);
         }
 
-        private bool HorizontalLeftCheckCapture(int startPosition, Label sender)
+        private void HorizontalLeftCheckCapture(int startPosition, Label sender)
         {
-            bool isCapture = false;
             int currentPosition = startPosition - 1;
             if (currentPosition % (int)BoardSizeSlider.Value >= 2 && currentPosition >= 0)
             {
@@ -279,23 +466,17 @@ namespace PenteXP
                         Label finalLabel = (Label)GameBoard.Children[currentPosition - 2];
                         if (finalLabel.Name == sender.Name)
                         {
-                            isCapture = true;
                             CaptureRemove(currentPosition, currentPosition - 1);
                             players[(turnOrder-1) % 2].Captures = 1;
                         }
                     }
                 }
             }
-            else
-            {
-                return isCapture;
-            }
-            return isCapture;
+           
         }
 
-        private bool HorizontalRightCheckCapture(int startPosition, Label sender)
+        private void HorizontalRightCheckCapture(int startPosition, Label sender)
         {
-            bool isCapture = false;
             int currentPosition = startPosition + 1;
             if (currentPosition % (int)BoardSizeSlider.Value < (int)BoardSizeSlider.Value - 2 && currentPosition < (int)BoardSizeSlider.Value * (int)BoardSizeSlider.Value)
             {
@@ -308,23 +489,16 @@ namespace PenteXP
                         Label finalLabel = (Label)GameBoard.Children[currentPosition + 2];
                         if (finalLabel.Name == sender.Name)
                         {
-                            isCapture = true;
                             CaptureRemove(currentPosition, currentPosition + 1);
                             players[(turnOrder-1) % 2].Captures = 1;
                         }
                     }
                 }
             }
-            else
-            {
-                return isCapture;
-            }
-            return isCapture;
         }
 
-        private bool VerticalDownCheckCapture(int startPosition, Label sender)
+        private void VerticalDownCheckCapture(int startPosition, Label sender)
         {
-            bool isCapture = false;
             int currentPosition = startPosition + (int)BoardSizeSlider.Value;
             if (currentPosition / (int)BoardSizeSlider.Value < (int)BoardSizeSlider.Value - 2)
             {
@@ -337,23 +511,16 @@ namespace PenteXP
                         Label finalLabel = (Label)GameBoard.Children[currentPosition + ((int)BoardSizeSlider.Value * 2)];
                         if (finalLabel.Name == sender.Name)
                         {
-                            isCapture = true;
                             CaptureRemove(currentPosition, currentPosition + (int)BoardSizeSlider.Value);
                             players[(turnOrder-1) % 2].Captures = 1;
                         }
                     }
                 }
             }
-            else
-            {
-                return isCapture;
-            }
-            return isCapture;
         }
 
-        private bool VerticalUpCheckCapture(int startPosition, Label sender)
+        private void VerticalUpCheckCapture(int startPosition, Label sender)
         {
-            bool isCapture = false;
             int currentPosition = startPosition - (int)BoardSizeSlider.Value;
             if (currentPosition / (int)BoardSizeSlider.Value >= 2)
             {
@@ -366,23 +533,16 @@ namespace PenteXP
                         Label finalLabel = (Label)GameBoard.Children[currentPosition - ((int)BoardSizeSlider.Value * 2)];
                         if (finalLabel.Name == sender.Name)
                         {
-                            isCapture = true;
                             CaptureRemove(currentPosition, currentPosition - (int)BoardSizeSlider.Value);
                             players[(turnOrder-1) % 2].Captures = 1;
                         }
                     }
                 }
             }
-            else
-            {
-                return isCapture;
-            }
-            return isCapture;
         }
         
-        private bool DiagonalUpLeftCheckCapture(int startPosition, Label sender)
+        private void DiagonalUpLeftCheckCapture(int startPosition, Label sender)
         {
-            bool isCapture = false;
             int currentPosition = startPosition - (int)BoardSizeSlider.Value - 1;
             if (currentPosition / (int)BoardSizeSlider.Value >= 2 && currentPosition % (int)BoardSizeSlider.Value >= 2)
             {
@@ -395,23 +555,16 @@ namespace PenteXP
                         Label finalLabel = (Label)GameBoard.Children[(currentPosition - ((int)BoardSizeSlider.Value * 2)) - 2];
                         if (finalLabel.Name == sender.Name)
                         {
-                            isCapture = true;
                             CaptureRemove(currentPosition, currentPosition - (int)BoardSizeSlider.Value - 1);
                             players[(turnOrder-1) % 2].Captures = 1;
                         }
                     }
                 }
             }
-            else
-            {
-                return isCapture;
-            }
-            return isCapture;
         }
 
-        private bool DiagonalUpRightCheckCapture(int startPosition, Label sender)
+        private void DiagonalUpRightCheckCapture(int startPosition, Label sender)
         {
-            bool isCapture = false;
             int currentPosition = startPosition - (int)BoardSizeSlider.Value + 1;
             if (currentPosition / (int)BoardSizeSlider.Value >= 2 && currentPosition % (int)BoardSizeSlider.Value <= (int)BoardSizeSlider.Value - 3)
             {
@@ -424,23 +577,16 @@ namespace PenteXP
                         Label finalLabel = (Label)GameBoard.Children[(currentPosition - ((int)BoardSizeSlider.Value * 2)) + 2];
                         if (finalLabel.Name == sender.Name)
                         {
-                            isCapture = true;
                             CaptureRemove(currentPosition, currentPosition - (int)BoardSizeSlider.Value + 1);
                             players[(turnOrder-1) % 2].Captures = 1;
                         }
                     }
                 }
             }
-            else
-            {
-                return isCapture;
-            }
-            return isCapture;
         }
 
-        private bool DiagonalDownLeftCheckCapture(int startPosition, Label sender)
+        private void DiagonalDownLeftCheckCapture(int startPosition, Label sender)
         {
-            bool isCapture = false;
             int currentPosition = startPosition + (int)BoardSizeSlider.Value - 1;
             if (currentPosition / (int)BoardSizeSlider.Value < (int)BoardSizeSlider.Value - 2 && currentPosition % (int)BoardSizeSlider.Value >= 2 && currentPosition % (int)BoardSizeSlider.Value >= 2)
             {
@@ -453,23 +599,16 @@ namespace PenteXP
                         Label finalLabel = (Label)GameBoard.Children[(currentPosition + ((int)BoardSizeSlider.Value * 2)) - 2];
                         if (finalLabel.Name == sender.Name)
                         {
-                            isCapture = true;
                             CaptureRemove(currentPosition, currentPosition + (int)BoardSizeSlider.Value - 1);
                             players[(turnOrder-1) % 2].Captures = 1;
                         }
                     }
                 }
             }
-            else
-            {
-                return isCapture;
-            }
-            return isCapture;
         }
 
-        private bool DiagonalDownRightCheckCapture(int startPosition, Label sender)
+        private void DiagonalDownRightCheckCapture(int startPosition, Label sender)
         {
-            bool isCapture = false;
             int currentPosition = startPosition + (int)BoardSizeSlider.Value + 1;
             if (currentPosition / (int)BoardSizeSlider.Value < (int)BoardSizeSlider.Value - 2 && currentPosition % (int)BoardSizeSlider.Value <= (int)BoardSizeSlider.Value - 3)
             {
@@ -482,18 +621,12 @@ namespace PenteXP
                         Label finalLabel = (Label)GameBoard.Children[(currentPosition + ((int)BoardSizeSlider.Value * 2)) + 2];
                         if (finalLabel.Name == sender.Name)
                         {
-                            isCapture = true;
                             CaptureRemove(currentPosition, currentPosition + (int)BoardSizeSlider.Value + 1);
                             players[(turnOrder-1) % 2].Captures = 1;
                         }
                     }
                 }
             }
-            else
-            {
-                return isCapture;
-            }
-            return isCapture;
         }
 
         private void UpdatePlayerTurn()

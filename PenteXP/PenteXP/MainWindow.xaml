@@ -14,6 +14,8 @@
 				    Executed="SaveGame_Executed"/>
 	   <CommandBinding Command="Open"
 				    Executed="LoadGame_Executed"/>
+	   <CommandBinding Command="Paste"
+				    Executed="Instructions_Executed"/>
     </Window.CommandBindings>
     <Window.InputBindings>
 	   <KeyBinding Key="R"
@@ -25,6 +27,9 @@
 	   <KeyBinding Key="O"
                     Modifiers="Ctrl"
                     Command="Open" />
+	   <KeyBinding Key="I"
+                    Modifiers="Ctrl"
+                    Command="Paste" />
     </Window.InputBindings>
     <StackPanel>
 	   <StackPanel x:Name="fileMenu" Grid.ColumnSpan="2">
@@ -39,6 +44,9 @@
 				<MenuItem Header="Load Game"
                           Command="Open" 
 					 InputGestureText="Ctrl+O"/>
+				<MenuItem Header="Instructions"
+                          Command="Paste"
+					 InputGestureText="Ctrl+I"/>
 			 </MenuItem>
 		  </Menu>
 	   </StackPanel>
