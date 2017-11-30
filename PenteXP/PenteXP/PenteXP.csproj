@@ -72,7 +72,7 @@
   <ItemGroup>
     <Compile Include="Models\AIPlayer.cs" />
     <Compile Include="Models\Colors.cs" />
-    <Compile Include="Models\gameModel.cs" />
+    <Compile Include="Models\GameModel.cs" />
     <Compile Include="Models\HumanPlayer.cs" />
     <Compile Include="Models\Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">

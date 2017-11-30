@@ -972,12 +972,15 @@ namespace PenteXP
 
         private void Instructions_Executed(object sender, ExecutedRoutedEventArgs e)
         {
+            timer.Stop();
             MessageBox.Show("\t\t\t   Pente Rules: \n\nHow to win: \nPlace five or more of your stones in a row, this can horizontally, vertically, or diagonally with no empty points in between the stones. \nYou may also win by capturing five or more pairs of your opponent's stones \n\nHow to make your turn: \nWhen it is your turn you will have twenty seconds to choose a place on the board to place your stone. \nTo place your stone click on a part of the board where the board’s grid intersects as those are the places on the board that represent the spaces. \n\nConditions on placing your stone: \nIf you are player one(the black stones), your first move is made for you. The first stone is placed in the center of the board. \nThen during player one’s second turn they cannot place their second black stone within three intersections of the first black stone. \n\nCaptures: \nTo capture your opponent’s pieces you must find a spot where your opponent has placed two of their pieces next to each other,  no more and no less than two, and place two of your pieces to bracket them in at the ends. The captured pieces are then removed from the board. \nCaptures can occur vertically, horizontally, or diagonally. Multiple captures can also occur with a single turn.");
+            timer.Start();
         }
 
         private void SaveGame_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            gameModel model = new gameModel();
+            timer.Stop();
+            GameModel model = new GameModel();
             foreach (Label name in GameBoard.Children)
             {
                 model.boardpieces.Add(name.Name);
@@ -985,6 +988,13 @@ namespace PenteXP
             foreach (Player player in players)
             {
                 model.players.Add(player);
+            }
+            model.Player1LastPiece = GameBoard.Children.IndexOf(player1LastPiece);
+            model.Player1SecondToLastPiece = GameBoard.Children.IndexOf(player1SecondToLastPiece);
+            model.Player2LastPiece = new List<int>();
+            foreach (Label name in player2LastPiece)
+            {
+                model.Player2LastPiece.Add(GameBoard.Children.IndexOf(name));
             }
 
             model.lastTurn = turnOrder;
@@ -1001,27 +1011,31 @@ namespace PenteXP
                     bf.Serialize(stream, model);
                 }
             }
+            timer.Start();
         }
 
         private void LoadGame_Executed(object sender, ExecutedRoutedEventArgs e)
         {
+            timer.Stop();
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.DefaultExt = ".pente";
             ofd.Filter = "Pente Saves (*.pente)|*.pente";
-            gameModel newGame = null;
+            GameModel newGame = null;
             if (ofd.ShowDialog() == true)
             {
                 using (FileStream stream = new FileStream(ofd.FileName, FileMode.Open))
                 {
                     BinaryFormatter bf = new BinaryFormatter();
-                    newGame = (gameModel)bf.Deserialize(stream);
+                    newGame = (GameModel)bf.Deserialize(stream);
                 }
                 LoadGame(newGame);
             }
+            timer.Start();
         }
 
-        private void LoadGame(gameModel save)
+        private void LoadGame(GameModel save)
         {
+            Refresh_Executed(null, null);
             turnOrder = save.lastTurn;
             timer.Stop();
             BoardCover.Visibility = Visibility.Hidden;
@@ -1074,6 +1088,16 @@ namespace PenteXP
                 }
                 label.MouseLeftButtonDown += Label_MouseLeftButtonDown;
                 GameBoard.Children.Add(label);
+            }
+            player1LastPiece = (Label)GameBoard.Children[save.Player1LastPiece];
+            player1SecondToLastPiece = (Label)GameBoard.Children[save.Player1SecondToLastPiece];
+            foreach (int index in save.Player2LastPiece)
+            {
+                if (index >= 0 )
+                {
+                    player2LastPiece.Add((Label)GameBoard.Children[index]);
+
+                }
             }
             ticks = turnTimer;
             MessageBox.Show("Your game has loaded, the timer will now start!");
