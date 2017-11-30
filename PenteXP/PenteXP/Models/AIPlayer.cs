@@ -11,6 +11,8 @@ namespace PenteXP.Models
     {
         public AIPlayer()
         {
+            Name = "Computer";
+            PlayerColor = Colors.White;
         }
     }
 }

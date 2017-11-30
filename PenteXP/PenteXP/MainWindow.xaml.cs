@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using PenteXP.Models;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -26,6 +27,11 @@ namespace PenteXP
         private swf.Timer timer = new swf.Timer();
         private const int turnTimer = 20;
         private int ticks = turnTimer;
+        private Label player1LastPiece = new Label();
+        private Label player1SecondToLastPiece = new Label();
+        private List<Label> player2LastPiece = new List<Label>();
+        private bool tria = false;
+        private bool tessera = false;
 
         public MainWindow()
         {
@@ -42,7 +48,15 @@ namespace PenteXP
                 timer.Stop();
                 ticks = turnTimer;
                 MessageBox.Show("You're turn has been skipped", "Turn Skipped!", MessageBoxButton.OK);
-                turnOrder++;
+                if (players[1].GetType() == typeof(HumanPlayer))
+                {
+                    turnOrder++;
+                }
+                else
+                {
+                    turnOrder--;
+                    AITakeTurn();
+                }
                 UpdatePlayerTurn();
                 timer.Start();
             }
@@ -70,6 +84,7 @@ namespace PenteXP
                         Stretch = Stretch.Uniform
                     };
                     spot.Background = brush;
+                    player1LastPiece = spot;
                 }
                 else
                 {
@@ -120,7 +135,13 @@ namespace PenteXP
                     label.Background = brush;
                     sender = label;
                     turnOrder++;
+                    player1SecondToLastPiece = player1LastPiece;
+                    player1LastPiece = label;
                     UpdatePlayerTurn();
+                    if (players[1].GetType() == typeof(AIPlayer))
+                    {
+                        AITakeTurn();
+                    }
                 }
                 else
                 {
@@ -145,6 +166,7 @@ namespace PenteXP
                         };
                         label.Background = brush;
                         sender = label;
+                        player2LastPiece.Add(label);
                     }
                     else
                     {
@@ -160,24 +182,213 @@ namespace PenteXP
                         };
                         label.Background = brush;
                         sender = label;
+                        player1SecondToLastPiece = player1LastPiece;
+                        player1LastPiece = label;
                     }
                     CaptureCheck(sender);
                     turnOrder++;
                     UpdatePlayerTurn();
-
+                    tria = false;
+                    tessera = false;
+                    if (WinCheck(sender))
+                    {
+                        timer.Stop();
+                        MessageBox.Show($"{players[turnOrder % 2].Name} wins!");
+                        ticks = turnTimer;
+                        Refresh_Executed(null, null);
+                    }
+                    else if (players[1].GetType() == typeof(AIPlayer))
+                    {
+                        AITakeTurn();
+                    }
                 }
                 else
                 {
                     MessageBox.Show("There is a piece there already");
                 }
-                if (WinCheck(sender) == true)
-                {
-                    timer.Stop();
-                    MessageBox.Show($"{players[turnOrder % 2].Name} wins!");
-                    Refresh_Executed(sender, null);
-                }
             }
             ticks = turnTimer;
+        }
+
+        public void AITakeTurn()
+        {
+            int aiPlayerIndex = 0;
+            Label aiPlayerPiece = null;
+            #region Random AI Placement
+            //Random rand = new Random();
+            //aiPlayerIndex = rand.Next(((int)BoardSizeSlider.Value * (int)BoardSizeSlider.Value) - 1);
+            //do
+            //{
+            //    randPiece = rand.Next(((int)BoardSizeSlider.Value * (int)BoardSizeSlider.Value) - 1);
+            //    aiPlayerPiece = (Label)GameBoard.Children[randPiece];
+            //} while (aiPlayerPiece.Name == "BlackPiece" || aiPlayerPiece.Name == "WhitePiece");
+            #endregion
+
+            if (!tria && !tessera)
+            {
+                bool validPlacement = false;
+                do
+                {
+                    try
+                    {
+                        aiPlayerIndex = GameBoard.Children.IndexOf(player2LastPiece.Last()) + 1;
+                        aiPlayerPiece = (Label)GameBoard.Children[aiPlayerIndex];
+                        if (aiPlayerPiece.Name != "RegularTile")
+                        {
+                            aiPlayerIndex = GameBoard.Children.IndexOf(player2LastPiece.Last()) - 1;
+                            aiPlayerPiece = (Label)GameBoard.Children[aiPlayerIndex];
+                            if (aiPlayerPiece.Name != "RegularTile")
+                            {
+                                aiPlayerIndex = GameBoard.Children.IndexOf(player2LastPiece.Last()) + (int)BoardSizeSlider.Value;
+                                aiPlayerPiece = (Label)GameBoard.Children[aiPlayerIndex];
+                                if (aiPlayerPiece.Name != "RegularTile")
+                                {
+                                    aiPlayerIndex = GameBoard.Children.IndexOf(player2LastPiece.Last()) - (int)BoardSizeSlider.Value;
+                                    aiPlayerPiece = (Label)GameBoard.Children[aiPlayerIndex];
+                                    if (aiPlayerPiece.Name != "RegularTile")
+                                    {
+                                        aiPlayerIndex = GameBoard.Children.IndexOf(player2LastPiece.Last()) - (int)BoardSizeSlider.Value + 1;
+                                        aiPlayerPiece = (Label)GameBoard.Children[aiPlayerIndex];
+                                        if (aiPlayerPiece.Name != "RegularTile")
+                                        {
+                                            aiPlayerIndex = GameBoard.Children.IndexOf(player2LastPiece.Last()) - (int)BoardSizeSlider.Value - 1;
+                                            aiPlayerPiece = (Label)GameBoard.Children[aiPlayerIndex];
+                                            if (aiPlayerPiece.Name != "RegularTile")
+                                            {
+                                                aiPlayerIndex = GameBoard.Children.IndexOf(player2LastPiece.Last()) + (int)BoardSizeSlider.Value - 1;
+                                                aiPlayerPiece = (Label)GameBoard.Children[aiPlayerIndex];
+                                                if (aiPlayerPiece.Name != "RegularTile")
+                                                {
+                                                    aiPlayerIndex = GameBoard.Children.IndexOf(player2LastPiece.Last()) + (int)BoardSizeSlider.Value + 1;
+                                                    aiPlayerPiece = (Label)GameBoard.Children[aiPlayerIndex];
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        validPlacement = true;
+                    }
+                    catch (IndexOutOfRangeException)
+                    {
+                        player2LastPiece.Remove(player2LastPiece.Last());
+                    }
+                    catch (ArgumentOutOfRangeException )
+                    {
+                        player2LastPiece.Remove(player2LastPiece.Last());
+                    }
+                    
+
+                } while (!validPlacement);
+            }
+            else
+            {
+                int firstIndex = GameBoard.Children.IndexOf(player1LastPiece);
+                int secondIndex = GameBoard.Children.IndexOf(player1SecondToLastPiece);
+                int rateOfChange = firstIndex - secondIndex;
+                if (Math.Abs(rateOfChange) > BoardSizeSlider.Value + 1)
+                {
+                    if (rateOfChange % (int)BoardSizeSlider.Value == 0)
+                    {
+                        if(rateOfChange > 0)
+                        {
+                            rateOfChange = (int)BoardSizeSlider.Value;
+                        }
+                        else
+                        {
+                            rateOfChange = -(int)BoardSizeSlider.Value;
+                        }
+                    }
+                    else if (rateOfChange % ((int)BoardSizeSlider.Value + 1) == 0)
+                    {
+                        if (rateOfChange > 0)
+                        {
+                            rateOfChange = (int)BoardSizeSlider.Value + 1;
+                        }
+                        else
+                        {
+                            rateOfChange = ((int)BoardSizeSlider.Value + 1) * -1;
+                        }
+                    }
+                    else if (rateOfChange % ((int)BoardSizeSlider.Value - 1) == 0)
+                    {
+                        if (rateOfChange > 0)
+                        {
+                            rateOfChange = (int)BoardSizeSlider.Value - 1;
+                        }
+                        else
+                        {
+                            rateOfChange = ((int)BoardSizeSlider.Value - 1) * -1;
+                        }
+                    }
+                    else
+                    {
+                        rateOfChange = 1;
+                    }
+                }
+                else if (Math.Abs(rateOfChange) == 3 || Math.Abs(rateOfChange) == 4)
+                {
+                    if(rateOfChange > 0)
+                    {
+                        rateOfChange = 1;
+                    }
+                    else
+                    {
+                        rateOfChange = -1;
+                    }
+                }
+                if (Math.Abs(rateOfChange) == 1 && firstIndex % (int)BoardSizeSlider.Value == (int)BoardSizeSlider.Value-1)
+                {
+                    if (tessera)
+                    {
+                        rateOfChange = -4;
+                    }
+                    else
+                    {
+                        rateOfChange = -3;
+                    }
+                }
+                else if (Math.Abs(rateOfChange) == 1 && firstIndex % (int)BoardSizeSlider.Value == 0)
+                {
+                    if (tessera)
+                    {
+                        rateOfChange = 4;
+                    }
+                    else
+                    {
+                        rateOfChange = 3;
+                    }
+                }
+                aiPlayerPiece = (Label)GameBoard.Children[firstIndex + rateOfChange];
+                
+                while (aiPlayerPiece.Name != "RegularTile")
+                {
+                    aiPlayerPiece = (Label)GameBoard.Children[GameBoard.Children.IndexOf(aiPlayerPiece) + rateOfChange];
+                }
+            }
+
+            Label label = new Label();
+            label.Name = "WhitePiece";
+            Uri resourceUri = new Uri("Images/WhitePiece.png", UriKind.Relative);
+            StreamResourceInfo streamInfo = Application.GetResourceStream(resourceUri);
+            BitmapFrame temp = BitmapFrame.Create(streamInfo.Stream);
+            var brush = new ImageBrush
+            {
+                ImageSource = temp,
+                Stretch = Stretch.Fill
+            };
+            label.Background = brush;
+            GameBoard.Children.Cast<Label>().ElementAt(GameBoard.Children.IndexOf(aiPlayerPiece)).Background = brush;
+            GameBoard.Children.Cast<Label>().ElementAt(GameBoard.Children.IndexOf(aiPlayerPiece)).Name = "WhitePiece";
+            turnOrder++;
+            if (WinCheck(aiPlayerPiece))
+            {
+                timer.Stop();
+                MessageBox.Show($"{players[turnOrder % 2].Name} wins!");
+                Refresh_Executed(null, null);
+            }
+            player2LastPiece.Add(aiPlayerPiece);
         }
 
         private bool WinCheck(object sender)
@@ -258,11 +469,19 @@ namespace PenteXP
             {
                 if (totalRowCount == 3 && emptyEndCaps == 2)
                 {
-                    MessageBox.Show("TRIA!");
+                    MessageBox.Show($"{players[turnOrder%2].Name} got a TRIA!");
+                    if (players[0].GetType() == typeof(HumanPlayer))
+                    {
+                        tria = true;
+                    }
                 }
                 else if(totalRowCount == 4 && emptyEndCaps >= 1)
                 {
-                    MessageBox.Show("TESSERA!");
+                    MessageBox.Show($"{players[turnOrder % 2].Name} got a TESSERA!");
+                    if (players[0].GetType() == typeof(HumanPlayer))
+                    {
+                        tessera = true;
+                    }
                 }
             }
             return hasWon;
@@ -316,11 +535,19 @@ namespace PenteXP
             {
                 if (totalRowCount == 3 && emptyEndCaps == 2)
                 {
-                    MessageBox.Show("TRIA!");
+                    MessageBox.Show($"{players[turnOrder % 2].Name} got a TRIA!");
+                    if (players[0].GetType() == typeof(HumanPlayer))
+                    {
+                        tria = true;
+                    }
                 }
                 else if (totalRowCount == 4 && emptyEndCaps >= 1)
                 {
-                    MessageBox.Show("TESSERA!");
+                    MessageBox.Show($"{players[turnOrder % 2].Name} got a TESSERA!");
+                    if (players[0].GetType() == typeof(HumanPlayer))
+                    {
+                        tessera = true;
+                    }
                 }
             }
             return hasWon;
@@ -372,11 +599,19 @@ namespace PenteXP
             {
                 if (totalRowCount == 3 && emptyEndCaps == 2)
                 {
-                    MessageBox.Show("TRIA!");
+                    MessageBox.Show($"{players[turnOrder % 2].Name} got a TRIA!");
+                    if (players[0].GetType() == typeof(HumanPlayer))
+                    {
+                        tria = true;
+                    }
                 }
                 else if (totalRowCount == 4 && emptyEndCaps >= 1)
                 {
-                    MessageBox.Show("TESSERA!");
+                    MessageBox.Show($"{players[turnOrder % 2].Name} got a TESSERA!");
+                    if (players[0].GetType() == typeof(HumanPlayer))
+                    {
+                        tessera = true;
+                    }
                 }
             }
             return hasWon;
@@ -389,7 +624,7 @@ namespace PenteXP
             bool keepGoing = true;
             int emptyEndCaps = 0;
 
-            for (int i = startPosition - (int)BoardSizeSlider.Value - 1; keepGoing && i > 0; i -= ((int)BoardSizeSlider.Value + 1))
+            for (int i = startPosition - (int)BoardSizeSlider.Value - 1; keepGoing && i >= 0; i -= ((int)BoardSizeSlider.Value + 1))
             {
                 Label l = (Label)GameBoard.Children[i];
                 if (l.Name == sender.Name)
@@ -428,11 +663,19 @@ namespace PenteXP
             {
                 if (totalRowCount == 3 && emptyEndCaps == 2)
                 {
-                    MessageBox.Show("TRIA!");
+                    MessageBox.Show($"{players[turnOrder % 2].Name} got a TRIA!");
+                    if (players[0].GetType() == typeof(HumanPlayer))
+                    {
+                        tria = true;
+                    }
                 }
                 else if (totalRowCount == 4 && emptyEndCaps >= 1)
                 {
-                    MessageBox.Show("TESSERA!");
+                    MessageBox.Show($"{players[turnOrder % 2].Name} got a TESSERA!");
+                    if (players[0].GetType() == typeof(HumanPlayer))
+                    {
+                        tessera = true;
+                    }
                 }
             }
             return hasWon;
@@ -635,13 +878,13 @@ namespace PenteXP
             Player2Info.Content = players[1].ToString();
             if (turnOrder % 2 == 0)
             {
-                Player1Info.Background = Brushes.White;
-                Player2Info.Background = Brushes.IndianRed;
+                Player2Info.Background = new SolidColorBrush(Color.FromRgb(63, 140, 208));
+                Player1Info.Background = new SolidColorBrush(Color.FromRgb(108, 38, 38));
             }
             else
             {
-                Player1Info.Background = Brushes.IndianRed;
-                Player2Info.Background = Brushes.White;
+                Player2Info.Background = new SolidColorBrush(Color.FromRgb(108, 38, 38));
+                Player1Info.Background = new SolidColorBrush(Color.FromRgb(63, 140, 208));
             }
         }
 
@@ -673,19 +916,58 @@ namespace PenteXP
             PlayerDetails.Visibility = Visibility.Visible;
             BoardCover.Visibility = Visibility.Visible;
             players = new Player[2];
-            ticks = 0;
+            player1LastPiece = new Label();
+            player1SecondToLastPiece = new Label();
+            player2LastPiece = new List<Label>();
+            tria = false;
+            tessera = false;
+            ticks = turnTimer;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             BoardCover.Visibility = Visibility.Hidden;
             players[0] = new HumanPlayer(Player1Name.Text);
-            players[1] = new HumanPlayer(Player2Name.Text);
+            if ((bool)AICheckBox.IsChecked)
+            {
+                players[1] = new AIPlayer();
+            }
+            else
+            {
+                players[1] = new HumanPlayer(Player2Name.Text);
+            }
             PlayerDetails.Visibility = Visibility.Hidden;
             PlayerTurnOrder.Visibility = Visibility.Visible;
             InitializeBoard();
             timer.Start();
             UpdatePlayerTurn();
+            if (players[1].GetType() == typeof(AIPlayer))
+            {
+                Random rand = new Random();
+                Label randLabel = null;
+                int randPiece = rand.Next(((int)BoardSizeSlider.Value * (int)BoardSizeSlider.Value) - 1);
+                do
+                {
+                    randPiece = rand.Next(((int)BoardSizeSlider.Value * (int)BoardSizeSlider.Value) - 1);
+                    randLabel = (Label)GameBoard.Children[randPiece];
+                } while (randLabel.Name == "BlackPiece");
+
+                Label label = new Label();
+                label.Name = "WhitePiece";
+                Uri resourceUri = new Uri("Images/WhitePiece.png", UriKind.Relative);
+                StreamResourceInfo streamInfo = Application.GetResourceStream(resourceUri);
+                BitmapFrame temp = BitmapFrame.Create(streamInfo.Stream);
+                var brush = new ImageBrush
+                {
+                    ImageSource = temp,
+                    Stretch = Stretch.Fill
+                };
+                label.Background = brush;
+                GameBoard.Children.Cast<Label>().ElementAt(randPiece).Background = brush;
+                GameBoard.Children.Cast<Label>().ElementAt(randPiece).Name = "WhitePiece";
+                player2LastPiece.Add(randLabel);
+                turnOrder++;
+            }
         }
 
         private void Instructions_Executed(object sender, ExecutedRoutedEventArgs e)
@@ -796,6 +1078,16 @@ namespace PenteXP
             ticks = turnTimer;
             MessageBox.Show("Your game has loaded, the timer will now start!");
             timer.Start();
+        }
+
+        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            Player2Name.Visibility = Visibility.Hidden;
+        }
+
+        private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Player2Name.Visibility = Visibility.Visible;
         }
     }
 }

@@ -6,7 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PenteXP"
         mc:Ignorable="d"
-        Title="Future Pente" Height="560" Width="900">
+        Title="Future Pente" Height="560" Width="871.2">
     <Window.CommandBindings>
 	   <CommandBinding Command="Close"
 				    Executed="Refresh_Executed"/>
@@ -31,7 +31,7 @@
                     Modifiers="Ctrl"
                     Command="Paste" />
     </Window.InputBindings>
-    <StackPanel>
+    <StackPanel Background="#6C2626">
 	   <StackPanel x:Name="fileMenu" Grid.ColumnSpan="2">
 		  <Menu>
 			 <MenuItem Header="Ga_me">
@@ -52,28 +52,36 @@
 	   </StackPanel>
 	   <Grid>
 		  <Grid.ColumnDefinitions>
-			 <ColumnDefinition Width="8*"/>
-			 <ColumnDefinition Width="2*"/>
+			 <ColumnDefinition Width="9*"/>
+			 <ColumnDefinition Width="1*"/>
 		  </Grid.ColumnDefinitions>
-		  <UniformGrid x:Name="GameBoard" Grid.Column="0" Height="500" Width="500" Margin="0 0 100 0"/>
-		  <TextBlock x:Name="BoardCover" FontSize="30" TextAlignment="Center" TextWrapping="Wrap" Text="Choose Player names and Board Size first to begin the game" Margin="50 0 150 0" Background="Gray" Opacity=".9"/>
-		  <StackPanel x:Name="PlayerDetails" Grid.Column="1" Margin="-5 0 10 0">
-			 <Label Content="Player 1's Name" />
+		  <UniformGrid x:Name="GameBoard" Grid.Column="0" Height="500" Width="500" Margin="0 0 0 0"/>
+		  <TextBlock x:Name="BoardCover" FontSize="30" TextAlignment="Center" TextWrapping="Wrap" Text="Choose Player names and Board Size first to begin the game" Margin="140,0,139.5,0" Background="Gray" Opacity=".9"/>
+		  <StackPanel x:Name="PlayerDetails" Grid.ColumnSpan="2" Margin="660,0,20,0" >
+			 <Label Content="Player 1's Name"  Foreground="White"/>
 			 <TextBox x:Name="Player1Name" Background="AliceBlue"/>
-			 <Label Content="Player 2's Name"/>
+			 <Label>
+				<StackPanel Orientation="Horizontal" Margin="-5 0 0 0">
+				    <Label Content="Player 2's Name |"  Foreground="White"/>
+				    <CheckBox x:Name="AICheckBox"  Foreground="White" Content="AI" VerticalAlignment="Center" Margin="0 4 0 0" Checked="CheckBox_Checked" Unchecked="CheckBox_Unchecked"/>
+				</StackPanel>
+			 </Label>
 			 <TextBox x:Name="Player2Name" Background="AliceBlue"/>
 			 <StackPanel  Margin="10">
-				<Label Content="Board Size"/>
+				<Label Content="Board Size"  Foreground="White"/>
 				<Slider x:Name="BoardSizeSlider" Maximum="39" Minimum="9" TickPlacement="BottomRight" TickFrequency="2" IsSnapToTickEnabled="True"/>
-				<Label Content="{Binding ElementName=BoardSizeSlider, Path=Value}"/>
+				<Label Content="{Binding ElementName=BoardSizeSlider, Path=Value}"  Foreground="White"/>
 			 </StackPanel>
 			 <Button Content="Start Game" Margin="0 5 0 0" Click="Button_Click"/>
 		  </StackPanel>
-		  <StackPanel x:Name="PlayerTurnOrder" Grid.Column="1">
-			 <Label x:Name="Player1Info"/>
-			 <Label x:Name="Player2Info"/>
+		  <StackPanel x:Name="PlayerTurnOrder" Visibility="Hidden" Grid.ColumnSpan="2" Margin="645,0,0,0">
+			 <Label x:Name="Player1Info" Foreground="White" BorderBrush="Black" BorderThickness="1"/>
+			 <Label x:Name="Player2Info" Foreground="White" BorderBrush="Black" BorderThickness="1"/>
 		  </StackPanel>
-		  <Label x:Name="test" Content="0" Margin="10,463,671,10"/>
+		  <StackPanel Margin="10,463,671,10" Orientation="Horizontal">
+			 <Label Foreground="White" Content="Timer: "/>
+			 <Label x:Name="test" Foreground="White" Content="0"/>
+		  </StackPanel>
 	   </Grid>
     </StackPanel>
 </Window>
